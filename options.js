@@ -676,20 +676,33 @@
   }
 
   // --- Test runners talk to background (centralized API is there) ---
-  async function runOcrTest(provider, modelName) {
+  async function runOcrTest(provider, modelName, btn) {
     if (!testImageDataUrl) {
-      log('No image loaded for the OCR test.', true); return;
-    } else {
-      log('[DEBUG] No modelName provided to backend.');
+      log('No image loaded for the OCR test.', true);
+      return;
     }
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Testing...';
+      btn.classList.remove('success', 'error');
+    }
+
     const resultBox = document.getElementById('ocr-result');
-    if (resultBox) { resultBox.value = ''; resultBox.disabled = true; }
+    if (resultBox) {
+      resultBox.value = '';
+      resultBox.disabled = true;
+    }
+
     try {
       const response = await chrome.runtime.sendMessage({
-        type: 'DIAG_TEST_OCR', provider, model: modelName, dataUrl: testImageDataUrl,
+        type: 'DIAG_TEST_OCR',
+        provider,
+        model: modelName,
+        dataUrl: testImageDataUrl,
       });
-      // extra debug: log what we sent
+
       log(`Requesting background script to test OCR with: ${provider} (model: ${modelName || 'none'})`);
+
       if (response && response.ok) {
         if (response.debug) {
           const { payload, ...restOfDebug } = response.debug;
@@ -697,30 +710,72 @@
         }
         log(`OCR test success for ${provider} (model: ${modelName}). Extracted ${response.text.length} chars.`);
         if (resultBox) resultBox.value = response.text;
+        if (btn) {
+          btn.textContent = 'Success';
+          btn.classList.add('success');
+        }
       } else {
         throw new Error(response?.error || 'Unknown error');
       }
     } catch (e) {
       log(`OCR test FAILED for ${provider} (model: ${modelName}): ${e.message}`, true);
       if (resultBox) resultBox.value = 'ERROR: ' + e.message;
+      if (btn) {
+        btn.textContent = 'Error';
+        btn.classList.add('error');
+      }
     } finally {
-      if (resultBox) { resultBox.disabled = false; }
+      if (resultBox) {
+        resultBox.disabled = false;
+      }
+      if (btn) {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Test';
+          btn.classList.remove('success', 'error');
+        }, 3000);
+      }
     }
   }
 
-  async function runParserTest(provider, modelName) {
+  async function runParserTest(provider, modelName, btn) {
     const textToParse = document.getElementById('parser-input')?.value || '';
     const resultBox = document.getElementById('parser-result');
-    if (resultBox) { resultBox.value = ''; resultBox.disabled = true; }
+
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Testing...';
+      btn.classList.remove('success', 'error');
+    }
+
+    if (resultBox) {
+      resultBox.value = '';
+      resultBox.disabled = true;
+    }
+
     if (!textToParse) {
       log('No text in the input box to parse.', true);
       if (resultBox) resultBox.value = 'ERROR: No text to parse.';
+      if (btn) {
+        btn.textContent = 'Error';
+        btn.classList.add('error');
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Test';
+          btn.classList.remove('success', 'error');
+        }, 3000);
+      }
       return;
     }
+
     try {
       const response = await chrome.runtime.sendMessage({
-        type: 'DIAG_TEST_PARSE', provider, model: modelName, text: textToParse,
+        type: 'DIAG_TEST_PARSE',
+        provider,
+        model: modelName,
+        text: textToParse,
       });
+
       if (response && response.ok) {
         log(`Parser test success for ${provider} (model: ${modelName}):`);
         if (response.debug) {
@@ -729,14 +784,31 @@
         }
         log(JSON.stringify(response.result, null, 2));
         if (resultBox) resultBox.value = JSON.stringify(response.result, null, 2);
+        if (btn) {
+          btn.textContent = 'Success';
+          btn.classList.add('success');
+        }
       } else {
         throw new Error(response?.error || 'Unknown error');
       }
     } catch (e) {
       log(`Parser test FAILED for ${provider} (model: ${modelName}): ${e.message}`, true);
       if (resultBox) resultBox.value = 'ERROR: ' + e.message;
+      if (btn) {
+        btn.textContent = 'Error';
+        btn.classList.add('error');
+      }
     } finally {
-      if (resultBox) { resultBox.disabled = false; }
+      if (resultBox) {
+        resultBox.disabled = false;
+      }
+      if (btn) {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Test';
+          btn.classList.remove('success', 'error');
+        }, 3000);
+      }
     }
   }
 
@@ -1066,7 +1138,8 @@
     });
 
     // OCR Test button wiring
-    $('ocr-test-btn')?.addEventListener('click', async () => {
+    $('ocr-test-btn')?.addEventListener('click', async (e) => {
+      const btn = e.target;
       // Find selected OCR provider and model
       const ocrRadio = document.querySelector('input[name="ocrMethod"]:checked');
       if (!ocrRadio) {
@@ -1085,11 +1158,12 @@
       const resultBox = $('ocr-result');
       if (resultBox) resultBox.value = '';
       // Run test
-      await runOcrTest(ocrRadio.value, modelName);
+      await runOcrTest(ocrRadio.value, modelName, btn);
     });
 
     // Parser Test button wiring
-    $('parser-test-btn')?.addEventListener('click', async () => {
+    $('parser-test-btn')?.addEventListener('click', async (e) => {
+      const btn = e.target;
       // Find selected Parser provider and model
       const parserRadio = document.querySelector('input[name="parseMethod"]:checked');
       if (!parserRadio) {
@@ -1104,7 +1178,7 @@
       const resultBox = $('parser-result');
       if (resultBox) resultBox.value = '';
       // Run test
-      await runParserTest(parserRadio.value, modelName);
+      await runParserTest(parserRadio.value, modelName, btn);
     });
 
     // Exit Options button

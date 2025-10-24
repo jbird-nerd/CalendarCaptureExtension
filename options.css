@@ -288,6 +288,20 @@ h3 {
   box-shadow: none;
 }
 
+.btn.success {
+  background-color: #e6f4ea;
+  border-color: #1e8e3e;
+  color: #1e8e3e;
+}
+
+.btn.error {
+  background-color: #fce8e6;
+  border-color: #d93025;
+  color: #d93025;
+}
+
+.btn.primary {
+  background-color: #1a73e8;
 .btn-primary {
   background-color: var(--primary);
   color: white;
