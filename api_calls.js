@@ -196,7 +196,15 @@ export async function performOcr(provider, dataUrl, settings) {
 // --------------------------- Parsing (with debug) ---------------------------
 
 function buildParsePrompt(text) {
-  return `Your task is to analyze ONLY the text provided below and extract event details into a single raw JSON object with keys: "title", "start", "end", "location", "hasTime". The current date is ${new Date().toString()}. Format dates as local ISO 8601 strings (e.g., "2025-09-23T17:30:00"). If info is missing, use null. --- ${text} ---`;
+  return `Your task is to analyze ONLY the text provided below and extract event details into a single raw JSON object with keys: "title", "start", "end", "location", "hasTime". The current date is ${new Date().toString()}.
+
+IMPORTANT: All relative and recurring date references MUST point to UPCOMING/FUTURE dates, never past dates:
+- "First Tuesday of the month" means the NEXT occurrence (if today is late October, use November's first Tuesday)
+- "Second Wednesday" means the upcoming second Wednesday, not a past one
+- "Every Monday" or "Every Other Friday" should use the next occurrence
+- Any day-of-week reference (e.g., "Monday", "this Friday") should be the upcoming occurrence
+
+Format dates as local ISO 8601 strings (e.g., "2025-09-23T17:30:00"). If info is missing, use null. --- ${text} ---`;
 }
 
 async function callOpenAIParseDebug(text, settings = {}) {
