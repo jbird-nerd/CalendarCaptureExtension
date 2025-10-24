@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>CalendarCapture — Configuration</title>
+  <title>CalendarCapture — Options</title>
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
   <div class="container">
-    <h1>CalendarCapture — Configuration</h1>
+    <h1>CalendarCapture — Options</h1>
 
     <div class="card api-keys-card">
       <h2>API Keys</h2>
@@ -58,6 +58,13 @@
     <div class="card diagnostics-card">
       <h2>Diagnostics & Testing</h2>
       <p style="font-size:13px; color:var(--muted); margin-top:-10px;">Test your setup.</p>
+      <div id="current-selection-info" class="selection-info">
+        <strong>Currently testing:</strong>
+        <div style="margin-top: 8px;">
+          <div><strong>OCR:</strong> <span id="current-ocr-info">None selected</span></div>
+          <div><strong>Parse:</strong> <span id="current-parse-info">None selected</span></div>
+        </div>
+      </div>
       <div style="display: flex; flex-direction: column; gap: 20px;">
         <div style="display: flex; align-items: center; gap: 16px;">
           <button id="ocr-test-btn" class="btn btn-outline btn-small" style="min-width:110px;">Test</button>
@@ -72,6 +79,9 @@
           <textarea id="parser-input" placeholder="Lunch a week from Thursday for 90 minutes with Tom, at Clydes of Chevy Chase" style="min-width:180px; height:120px;"></textarea>
           <textarea id="parser-result" placeholder="Parser result will appear here..." style="min-width:340px; height:120px;"></textarea>
         </div>
+      </div>
+      <div style="margin-top: 20px; text-align: center;">
+        <button id="exit-options-btn" class="btn btn-outline">Exit Options</button>
       </div>
       <div style="display: none;">
         <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">

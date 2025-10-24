@@ -77,12 +77,41 @@
     if (validKeyCount === 0) {
       if (ocrHelper) ocrHelper.textContent = 'Fill in at least one API key above to enable OCR providers';
       if (parseHelper) parseHelper.textContent = 'Fill in at least one API key above to enable parsing providers';
-    } else if (validKeyCount === 1) {
-      if (ocrHelper) ocrHelper.textContent = 'One provider available - click Load Models, select a model, then test';
-      if (parseHelper) parseHelper.textContent = 'One provider available - click Load Models, select a model, then test';
-    } else {
-      if (ocrHelper) ocrHelper.textContent = 'Select provider, then click Load Models to choose a model';
-      if (parseHelper) parseHelper.textContent = 'Select provider, then click Load Models to choose a model';
+      return;
+    }
+
+    // Check OCR section
+    if (ocrHelper) {
+      const enabledOcrRows = document.querySelectorAll('#ocr-method-options .provider-row:not(.disabled)');
+      const unpopulatedOcr = Array.from(enabledOcrRows).some(row => {
+        const select = row.querySelector('.model-select');
+        return select && select.options.length <= 1; // Only has placeholder
+      });
+
+      if (unpopulatedOcr) {
+        ocrHelper.textContent = 'Click Load Models to load available models';
+      } else if (enabledOcrRows.length > 1) {
+        ocrHelper.textContent = 'Select provider, then select model from dropdown';
+      } else {
+        ocrHelper.textContent = 'Select model from dropdown';
+      }
+    }
+
+    // Check Parse section
+    if (parseHelper) {
+      const enabledParseRows = document.querySelectorAll('#parse-method-options .provider-row:not(.disabled)');
+      const unpopulatedParse = Array.from(enabledParseRows).some(row => {
+        const select = row.querySelector('.model-select');
+        return select && select.options.length <= 1; // Only has placeholder
+      });
+
+      if (unpopulatedParse) {
+        parseHelper.textContent = 'Click Load Models to load available models';
+      } else if (enabledParseRows.length > 1) {
+        parseHelper.textContent = 'Select provider, then select model from dropdown';
+      } else {
+        parseHelper.textContent = 'Select model from dropdown';
+      }
     }
   }
 
@@ -262,6 +291,57 @@
     const parseRadios = document.querySelectorAll('input[name="parseMethod"]:not(:disabled)');
     if (parseRadios.length === 1 && !parseRadios[0].checked) {
       parseRadios[0].checked = true;
+    }
+
+    // Update selection info display
+    updateCurrentSelectionInfo();
+  }
+
+  // --- Update current selection info display ---
+  function updateCurrentSelectionInfo() {
+    const ocrInfoEl = $('current-ocr-info');
+    const parseInfoEl = $('current-parse-info');
+
+    if (!ocrInfoEl || !parseInfoEl) return;
+
+    // Get selected OCR provider and model
+    const selectedOcrRadio = document.querySelector('input[name="ocrMethod"]:checked');
+    if (selectedOcrRadio) {
+      const ocrRow = selectedOcrRadio.closest('.provider-row');
+      const ocrModelSelect = ocrRow?.querySelector('.model-select');
+      const providerName = selectedOcrRadio.parentElement.textContent.trim();
+      const modelName = ocrModelSelect?.value || 'No model selected';
+
+      if (modelName && modelName !== '' && modelName !== '- Select -') {
+        ocrInfoEl.textContent = `${providerName} - ${modelName}`;
+        ocrInfoEl.style.color = 'var(--success)';
+      } else {
+        ocrInfoEl.textContent = `${providerName} (select a model)`;
+        ocrInfoEl.style.color = 'var(--warning)';
+      }
+    } else {
+      ocrInfoEl.textContent = 'None selected';
+      ocrInfoEl.style.color = 'var(--text-secondary)';
+    }
+
+    // Get selected Parse provider and model
+    const selectedParseRadio = document.querySelector('input[name="parseMethod"]:checked');
+    if (selectedParseRadio) {
+      const parseRow = selectedParseRadio.closest('.provider-row');
+      const parseModelSelect = parseRow?.querySelector('.model-select');
+      const providerName = selectedParseRadio.parentElement.textContent.trim();
+      const modelName = parseModelSelect?.value || 'No model selected';
+
+      if (modelName && modelName !== '' && modelName !== '- Select -') {
+        parseInfoEl.textContent = `${providerName} - ${modelName}`;
+        parseInfoEl.style.color = 'var(--success)';
+      } else {
+        parseInfoEl.textContent = `${providerName} (select a model)`;
+        parseInfoEl.style.color = 'var(--warning)';
+      }
+    } else {
+      parseInfoEl.textContent = 'None selected';
+      parseInfoEl.style.color = 'var(--text-secondary)';
     }
   }
 
@@ -505,9 +585,12 @@
         log(`No models found for ${provider}.`, true);
         if (progressEl) progressEl.textContent = 'No models found';
       }
+      // Update helper text after models are loaded
+      updateHelperText();
     } catch (e) {
       log(`Model discovery failed for ${provider}: ${e.message}`, true);
       if (progressEl) progressEl.textContent = 'Error: ' + e.message;
+      updateHelperText();
     }
   }
 
@@ -924,6 +1007,8 @@
         }
       }
       log('Configuration loaded and UI restored.');
+      // Update current selection info display
+      updateCurrentSelectionInfo();
     } catch (e) {
       log(`Failed to load configuration: ${e.message}`, true);
     }
@@ -1021,6 +1106,11 @@
       // Run test
       await runParserTest(parserRadio.value, modelName);
     });
+
+    // Exit Options button
+    $('exit-options-btn')?.addEventListener('click', () => {
+      window.close();
+    });
   }
 
   // --- Boot ---
@@ -1072,6 +1162,11 @@
         placeholderOpt.disabled = true;
         modelSel.append(placeholderOpt);
 
+        // Update selection info when model changes
+        modelSel.addEventListener('change', () => {
+          updateCurrentSelectionInfo();
+        });
+
         // Progress indicator
         const progressEl = document.createElement('span');
         progressEl.className = 'progress-indicator';
@@ -1082,6 +1177,7 @@
           if (input.disabled) { e.preventDefault(); return; }
           input.checked = true;
           updateAllOptionStates(); // Re-evaluate button states when a radio is clicked
+          updateCurrentSelectionInfo(); // Update selection info
           if (onChoose) onChoose(opt.value);
         });
 
