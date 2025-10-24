@@ -3,8 +3,6 @@
 (() => {
   const NS = "t2c-cap";
   let overlay, guide, box, start, onMove, onUp;
-  let guideFollowMode = false;
-  let currentMousePos = { x: 0, y: 0 };
 
   // --- small utilities -------------------------------------------------------
   const dpr = () => (window.devicePixelRatio || 1);
@@ -37,50 +35,24 @@
       borderRadius: "4px"
     });
 
-    // helper bubble - starts large and center-right
+    // tiny helper bubble
     guide = document.createElement("div");
     guide.textContent = "Drag to capture • Esc to cancel";
     Object.assign(guide.style, {
       position: "fixed",
-      right: "20%",
-      top: "20%",
+      left: "20px",
+      top: "20px",
       background: "#1f2937",
       color: "#f3f4f6",
-      padding: "12px 20px",
-      borderRadius: "12px",
-      font: "16px/1.4 'Google Sans','Roboto',-apple-system,BlinkMacSystemFont,sans-serif",
-      fontWeight: "500",
-      boxShadow: "0 8px 32px rgba(0,0,0,.4)",
-      zIndex: "2147483647",
-      transition: "opacity 0.3s ease, font-size 0.3s ease, padding 0.3s ease",
-      opacity: "1"
+      padding: "8px 12px",
+      borderRadius: "8px",
+      font: "13px/1.2 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Inter,Arial,sans-serif",
+      boxShadow: "0 8px 32px rgba(0,0,0,.3)",
+      zIndex: "2147483647"
     });
 
     overlay.appendChild(box);
     overlay.appendChild(guide);
-
-    // After 1 second, switch to cursor-following mode
-    setTimeout(() => {
-      guideFollowMode = true;
-      // Make it smaller, more transparent, and position near cursor
-      Object.assign(guide.style, {
-        font: "13px/1.2 'Google Sans','Roboto',-apple-system,BlinkMacSystemFont,sans-serif",
-        padding: "8px 12px",
-        opacity: "0.85",
-        transition: "none"
-      });
-      updateGuidePosition(currentMousePos.x, currentMousePos.y);
-    }, 1000);
-  }
-
-  function updateGuidePosition(x, y) {
-    if (!guide || !guideFollowMode) return;
-    // Position 96px (roughly "an inch") away from cursor
-    // Place it to the bottom-right to avoid blocking the selection area
-    const offset = 96;
-    guide.style.left = `${x + offset}px`;
-    guide.style.top = `${y + offset}px`;
-    guide.style.right = "auto";
   }
 
   function removeOverlay() {
@@ -89,7 +61,6 @@
     overlay = null;
     box = null;
     guide = null;
-    guideFollowMode = false;
     document.removeEventListener("keydown", onEsc, true);
   }
 
@@ -108,15 +79,6 @@
     document.addEventListener("keydown", onEsc, true);
 
     start = null;
-
-    // Track all mouse movements for guide following
-    const trackMouse = (ev) => {
-      currentMousePos = { x: ev.clientX, y: ev.clientY };
-      if (guideFollowMode) {
-        updateGuidePosition(ev.clientX, ev.clientY);
-      }
-    };
-    overlay.addEventListener("mousemove", trackMouse);
 
     onMove = (ev) => {
       if (!start) return;

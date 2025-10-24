@@ -288,20 +288,6 @@ h3 {
   box-shadow: none;
 }
 
-.btn.success {
-  background-color: #e6f4ea;
-  border-color: #1e8e3e;
-  color: #1e8e3e;
-}
-
-.btn.error {
-  background-color: #fce8e6;
-  border-color: #d93025;
-  color: #d93025;
-}
-
-.btn.primary {
-  background-color: #1a73e8;
 .btn-primary {
   background-color: var(--primary);
   color: white;
@@ -442,6 +428,28 @@ pre {
   color: var(--text-secondary);
   margin: 20px 0;
 }
+
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.test-btn.flashing {
+  animation: flash 1s infinite;
+}
+
+.test-btn.success, .btn.success {
+  background-color: var(--success);
+  color: white;
+  border-color: #1e8e3e;
+}
+
+.test-btn.error, .btn.error {
+  background-color: var(--secondary);
+  color: white;
+  border-color: var(--secondary);
+}
+
 
 /* CSS Variables for legacy compatibility */
 body {
