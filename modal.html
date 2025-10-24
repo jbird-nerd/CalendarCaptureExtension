@@ -71,7 +71,7 @@
       margin-bottom: 12px;
     }
 
-    .field input, .field textarea {
+    .field input:not([type="date"]):not([type="time"]), .field textarea {
       background-color: #f1f3f4;
       border: 1px solid #dadce0;
       border-radius: 8px;
@@ -87,6 +87,16 @@
       background-color: #fff;
       border-color: #1a73e8;
       box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+    }
+
+    .field input[type="date"], .field input[type="time"] {
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Roboto', sans-serif;
+      padding: 9px 12px;
+      box-sizing: border-box;
+      transition: border-color 150ms, box-shadow 150ms;
     }
 
     .datetime-row {
@@ -256,10 +266,10 @@
   </div>
 
   <div class="buttons">
+    <button id="cancel" class="btn">Exit</button>
     <button id="add-to-calendar" class="btn">Add to Calendar</button>
     <button id="show-log" class="btn">Show Log</button>
     <button id="config" class="btn">Options</button>
-    <button id="cancel" class="btn">Exit</button>
     <span id="api-status" class="api-status"></span>
   </div>
 

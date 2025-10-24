@@ -202,8 +202,8 @@ async function processImage(imageDataUrl) {
     elements.addBtn.style.color = '#5f6368'; // Grey text
 
     // Show OCR status with model
-    const ocrModelName = settings.ocrModel ? ` with ${settings.ocrModel}` : '';
-    if (elements.apiStatus) elements.apiStatus.textContent = `AI OCR with ${settings.ocrMethod}${ocrModelName}...`;
+    const ocrModelName = settings.ocrModel || 'default model';
+    if (elements.apiStatus) elements.apiStatus.textContent = `AI OCR with ${ocrModelName}...`;
     logMessage(`[DEBUG] Calling runOcr... (Provider: ${settings.ocrMethod}, Model: ${settings.ocrModel || 'default'})`);
     const text = await runOcr(settings.ocrMethod, imageDataUrl);
     logMessage(`[DEBUG] OCR result: ${text ? text.substring(0, 80) + '...' : 'null'}`);
@@ -212,8 +212,8 @@ async function processImage(imageDataUrl) {
     logMessage(`[DEBUG] OCR completed. Extracted ${text.length} characters`);
 
     // Show Parse status with model
-    const parseModelName = settings.parseModel ? ` with ${settings.parseModel}` : '';
-    if (elements.apiStatus) elements.apiStatus.textContent = `AI Parse with ${settings.parseMethod}${parseModelName}...`;
+    const parseModelName = settings.parseModel || 'default model';
+    if (elements.apiStatus) elements.apiStatus.textContent = `AI Parse with ${parseModelName}...`;
     logMessage(`[DEBUG] Calling runParse... (Provider: ${settings.parseMethod}, Model: ${settings.parseModel || 'default'})`);
     const parsed = await runParse(settings.parseMethod, text);
     logMessage(`[DEBUG] Parsed result: ${JSON.stringify(parsed, null, 2)}`);

@@ -37,7 +37,7 @@
 
     // tiny helper bubble
     guide = document.createElement("div");
-    guide.textContent = "Drag to capture • Esc to cancel";
+    guide.textContent = "Drag to Capture; Release to End";
     Object.assign(guide.style, {
       position: "fixed",
       left: "20px",
@@ -97,11 +97,6 @@
       // Update guide position and text
       guide.style.left = (ev.clientX + 20) + "px";
       guide.style.top = (ev.clientY + 20) + "px";
-      if (w > 5 && h > 5) {
-        guide.textContent = `${w} x ${h}`;
-      } else {
-        guide.textContent = "Drag to capture • Esc to cancel";
-      }
     };
     
     onUp = async (ev) => {
