@@ -67,10 +67,7 @@
 
   // --- Update helper text for OCR and Parse sections ---
   function updateHelperText() {
-    // Count how many keys are valid
     const validKeyCount = Object.values(keyValidationStatus).filter(v => v).length;
-
-    // Update OCR helper text
     const ocrHelper = $('ocr-helper-text');
     const parseHelper = $('parse-helper-text');
 
@@ -80,38 +77,38 @@
       return;
     }
 
-    // Check OCR section
+    // Helper for OCR section
     if (ocrHelper) {
-      const enabledOcrRows = document.querySelectorAll('#ocr-method-options .provider-row:not(.disabled)');
-      const unpopulatedOcr = Array.from(enabledOcrRows).some(row => {
-        const select = row.querySelector('.model-select');
-        return select && select.options.length <= 1; // Only has placeholder
-      });
+      const enabledRows = document.querySelectorAll('#ocr-method-options .provider-row:not(.disabled)');
+      const unpopulated = Array.from(enabledRows).some(row => row.querySelector('.model-select')?.options.length <= 1);
 
-      if (unpopulatedOcr) {
-        ocrHelper.textContent = 'Click Load Models to load available models';
-      } else if (enabledOcrRows.length > 1) {
-        ocrHelper.textContent = 'Select provider, then select model from dropdown';
-      } else {
-        ocrHelper.textContent = 'Select model from dropdown';
+      let text = '';
+      if (enabledRows.length > 1) {
+        text += 'Choose a provider';
       }
+      if (unpopulated) {
+        text += (text ? ', then ' : '') + 'click Load Models';
+      } else {
+        text += (text ? ' and ' : '') + 'choose a model';
+      }
+      ocrHelper.textContent = text;
     }
 
-    // Check Parse section
+    // Helper for Parse section
     if (parseHelper) {
-      const enabledParseRows = document.querySelectorAll('#parse-method-options .provider-row:not(.disabled)');
-      const unpopulatedParse = Array.from(enabledParseRows).some(row => {
-        const select = row.querySelector('.model-select');
-        return select && select.options.length <= 1; // Only has placeholder
-      });
+      const enabledRows = document.querySelectorAll('#parse-method-options .provider-row:not(.disabled)');
+      const unpopulated = Array.from(enabledRows).some(row => row.querySelector('.model-select')?.options.length <= 1);
 
-      if (unpopulatedParse) {
-        parseHelper.textContent = 'Click Load Models to load available models';
-      } else if (enabledParseRows.length > 1) {
-        parseHelper.textContent = 'Select provider, then select model from dropdown';
-      } else {
-        parseHelper.textContent = 'Select model from dropdown';
+      let text = '';
+      if (enabledRows.length > 1) {
+        text += 'Choose a provider';
       }
+      if (unpopulated) {
+        text += (text ? ', then ' : '') + 'click Load Models';
+      } else {
+        text += (text ? ' and ' : '') + 'choose a model';
+      }
+      parseHelper.textContent = text;
     }
   }
 

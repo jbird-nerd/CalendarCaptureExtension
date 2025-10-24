@@ -98,6 +98,12 @@
       guide.style.left = (ev.clientX + 20) + "px";
       guide.style.top = (ev.clientY + 20) + "px";
     };
+
+    const onPreMove = (ev) => {
+      guide.style.left = (ev.clientX + 20) + "px";
+      guide.style.top = (ev.clientY + 20) + "px";
+    };
+    overlay.addEventListener("mousemove", onPreMove);
     
     onUp = async (ev) => {
       overlay.removeEventListener("mousemove", onMove);
@@ -135,6 +141,7 @@
 
     overlay.addEventListener("mousedown", (ev) => {
       if (ev.button !== 0) return;
+      overlay.removeEventListener("mousemove", onPreMove);
       start = { x: ev.clientX, y: ev.clientY };
       overlay.addEventListener("mousemove", onMove);
       overlay.addEventListener("mouseup", onUp);

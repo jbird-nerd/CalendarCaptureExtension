@@ -203,7 +203,7 @@ async function processImage(imageDataUrl) {
 
     // Show OCR status with model
     const ocrModelName = settings.ocrModel || 'default model';
-    if (elements.apiStatus) elements.apiStatus.textContent = `AI OCR with ${ocrModelName}...`;
+    if (elements.apiStatus) elements.apiStatus.textContent = `OCRing with ${ocrModelName}...`;
     logMessage(`[DEBUG] Calling runOcr... (Provider: ${settings.ocrMethod}, Model: ${settings.ocrModel || 'default'})`);
     const text = await runOcr(settings.ocrMethod, imageDataUrl);
     logMessage(`[DEBUG] OCR result: ${text ? text.substring(0, 80) + '...' : 'null'}`);
@@ -213,7 +213,7 @@ async function processImage(imageDataUrl) {
 
     // Show Parse status with model
     const parseModelName = settings.parseModel || 'default model';
-    if (elements.apiStatus) elements.apiStatus.textContent = `AI Parse with ${parseModelName}...`;
+    if (elements.apiStatus) elements.apiStatus.textContent = `Parsing with ${parseModelName}...`;
     logMessage(`[DEBUG] Calling runParse... (Provider: ${settings.parseMethod}, Model: ${settings.parseModel || 'default'})`);
     const parsed = await runParse(settings.parseMethod, text);
     logMessage(`[DEBUG] Parsed result: ${JSON.stringify(parsed, null, 2)}`);
