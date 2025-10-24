@@ -141,6 +141,18 @@ h1 {
   cursor: not-allowed;
 }
 
+.btn.success {
+  background-color: #e6f4ea;
+  border-color: #1e8e3e;
+  color: #1e8e3e;
+}
+
+.btn.error {
+  background-color: #fce8e6;
+  border-color: #d93025;
+  color: #d93025;
+}
+
 .btn.primary {
   background-color: #1a73e8;
   color: white;
