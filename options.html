@@ -2,31 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>CalendarCapture — Configuration</title>
-  <style>
-    .provider-option.disabled { opacity: 0.5; cursor: not-allowed; background: #f9fafb; }
-    .api-key-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center; margin: 8px 0; }
-    .api-key-input { width: 100%; padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
-    .api-key-label { display: flex; align-items: center; gap: 8px; }
-    .key-hint { font-size: 11px; color: #ef4444; font-weight: 500; }
-    .btn { padding: 10px 18px; border: 0; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-small { padding: 8px 12px; font-size: 12px; }
-    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    /* Yellow on Blue Log Style */
-    pre { white-space: pre-wrap; background: #000080; color: #FFFF00; border-radius: 8px; padding: 12px; font-size: 12px; line-height: 1.4; min-height: 120px; max-height: 300px; overflow: auto; font-family: monospace; }
-    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
-    .image-dropzone { border: 2px dashed var(--border); border-radius: 8px; padding: 10px; text-align: center; color: var(--muted); cursor: pointer; position: relative; min-height: 120px; display: flex; align-items: center; justify-content: center;}
-    .image-dropzone:hover { border-color: var(--primary); }
-    .image-dropzone img { max-width: 100%; max-height: 180px; border-radius: 4px; }
-    .test-flow-arrow { text-align: center; font-size: 24px; color: var(--muted); margin: 20px 0; }
-  </style>
+  <title>CalendarCapture — Options</title>
+  <link rel="stylesheet" href="options.css">
 </head>
 <body>
   <div class="container">
-    <h1>CalendarCapture — Configuration</h1>
+    <h1>CalendarCapture — Options</h1>
 
-    <div class="card">
+    <div class="card api-keys-card">
       <h2>API Keys</h2>
       <p class="key-hint" id="api-key-hint" style="display:none;">Supply your AI key for AI-powered OCR and text-parsing</p>
       <div class="api-key-row">
@@ -49,28 +32,39 @@
         <input type="text" class="api-key-input" id="google-key" placeholder="AIza...">
         <span id="google-key-error" class="key-hint" style="display:none;"></span>
       </div>
-      <div style="text-align:center; margin-top:20px;">
-        <button id="save-config-btn" class="btn primary">Save Configuration</button>
-        <p id="saveStatus" style="font-size: 13px; color: var(--success); height: 1em; margin-top: 10px;"></p>
+      <div style="margin-top:16px;">
+        <button id="save-config-btn" class="btn btn-primary">Save & Validate Keys</button>
+        <p id="saveStatus" style="font-size: 13px; color: #1e8e3e; height: 1em; margin-top: 8px;"></p>
       </div>
     </div>
 
-    <div class="card">
-      <h2>Processing Methods</h2>
-      <p style="font-size:13px; color:var(--muted); margin-top:-10px; margin-bottom: 20px;">Select your default methods for captures. Options are enabled once you add an API key above.</p>
-      <h3>OCR Method (Image to Text)</h3>
-      <div id="ocr-method-options" class="provider-options"></div>
-      <h3 style="margin-top: 20px;">Parsing Method (Text to Event)</h3>
-      <div id="parse-method-options" class="provider-options"></div>
-      <div class="save-container" style="justify-content: center;">
-        <button id="save-methods-btn" class="btn primary">Save Methods</button>
-        <p id="methodSaveStatus" style="font-size: 13px; color: var(--success); height: 1em;"></p>
+    <div class="card methods-card">
+      <div class="method-section ocr-section">
+        <h3>OCR AI Provider (Image to Text)</h3>
+        <p class="helper-text" id="ocr-helper-text"></p>
+        <div id="ocr-method-options" class="provider-options"></div>
+      </div>
+      <div class="method-section parse-section">
+        <h3>Parsing AI Provider (Raw text to Calendar Format)</h3>
+        <p class="helper-text" id="parse-helper-text"></p>
+        <div id="parse-method-options" class="provider-options"></div>
+      </div>
+      <div class="save-container">
+        <button id="save-methods-btn" class="btn btn-primary">Save Methods</button>
+        <p id="methodSaveStatus" style="font-size: 13px; color: #1e8e3e; height: 1em;"></p>
       </div>
     </div>
 
-    <div class="card">
+    <div class="card diagnostics-card">
       <h2>Diagnostics & Testing</h2>
-      <p style="font-size:13px; color:var(--muted); margin-top:-10px;">Test your setup. Text from a successful OCR test will automatically populate the Parser Test input.</p>
+      <p style="font-size:13px; color:var(--muted); margin-top:-10px;">Test your setup.</p>
+      <div id="current-selection-info" class="selection-info">
+        <strong>Currently testing:</strong>
+        <div style="margin-top: 8px;">
+          <div><strong>OCR:</strong> <span id="current-ocr-info">None selected</span></div>
+          <div><strong>Parse:</strong> <span id="current-parse-info">None selected</span></div>
+        </div>
+      </div>
       <div style="display: flex; flex-direction: column; gap: 20px;">
         <div style="display: flex; align-items: center; gap: 16px;">
           <button id="ocr-test-btn" class="btn btn-outline btn-small" style="min-width:110px;">Test</button>
@@ -95,13 +89,19 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2>Diagnostic Log</h2>
-      <pre id="diagLog"></pre>
-      <div style="margin-top:10px; display:flex; gap: 8px;">
-        <button id="clear-log-btn" class="btn btn-outline btn-small">Clear Log</button>
-        <button id="copy-log-btn" class="btn btn-outline btn-small">Copy Log</button>
+    <div style="margin-bottom: 24px; text-align: center;">
+      <button id="exit-options-btn" class="btn btn-outline">Exit Options</button>
+    </div>
+
+    <div class="card log-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h2 style="margin: 0;">Diagnostic Log</h2>
+        <div style="display: flex; gap: 8px;">
+          <button id="copy-log-btn" class="btn btn-outline btn-small">Copy</button>
+          <button id="clear-log-btn" class="btn btn-outline btn-small">Clear</button>
+        </div>
       </div>
+      <pre id="diagLog"></pre>
     </div>
 
   </div>
