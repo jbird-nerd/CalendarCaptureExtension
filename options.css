@@ -1,0 +1,196 @@
+/* options.css - Material Design Inspired Styles */
+
+body {
+  font-family: 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: #f8f9fa;
+  color: #3c4043;
+  margin: 0;
+  padding: 24px;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 400;
+  color: #202124;
+  margin: 0 0 8px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dadce0;
+  background-color: #e8f0fe; /* Light blue highlight for the header area */
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.1);
+}
+
+.card.methods {
+  background-color: #e8f0fe; /* Light blue background for methods card */
+}
+
+.card h2 {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 20px 0;
+  color: #202124;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #5f6368;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #f8f9fa;
+  transition: background-color 150ms, border-color 150ms;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #1a73e8;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+.key-hint {
+  font-size: 12px;
+  color: #d93025;
+  margin-top: 4px;
+}
+
+.provider-row {
+  display: grid;
+  grid-template-columns: 220px 180px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e8eaed;
+}
+.provider-row:last-child {
+  border-bottom: none;
+}
+
+.provider-row.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.provider-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.model-select {
+  width: 300px; /* Fixed width for alignment */
+  padding: 8px 10px;
+  font-size: 14px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+}
+
+.model-select:disabled {
+  background-color: #f1f3f4;
+  color: #9aa0a6;
+}
+
+.btn {
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+  font-weight: 500;
+  padding: 8px 24px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 150ms, box-shadow 150ms;
+  text-align: center;
+}
+
+.btn:hover:not(:disabled) {
+  background-color: #f1f3f4;
+  border-color: #d0d4d8;
+}
+
+.btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background-color: #1a73e8;
+  color: white;
+  border-color: transparent;
+}
+
+.btn.primary:hover:not(:disabled) {
+  background-color: #185abc;
+  box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+}
+
+.btn.secondary {
+  color: #1a73e8;
+  background-color: transparent;
+  border-color: #dadce0;
+}
+
+.btn.secondary:hover:not(:disabled) {
+  background-color: rgba(26, 115, 232, 0.04);
+}
+
+.save-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+#saveStatus {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e8e3e;
+}
+
+/* Diagnostics Section */
+.diag-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.diag-log-container textarea {
+  width: 100%;
+  box-sizing: border-box;
+  height: 400px;
+  font-family: 'SF Mono', 'Roboto Mono', monospace;
+  font-size: 12px;
+  background-color: #202124;
+  color: #e8eaed;
+  border: 1px solid #5f6368;
+  border-radius: 4px;
+  padding: 8px;
+}
