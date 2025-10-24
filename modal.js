@@ -196,8 +196,14 @@ async function processImage(imageDataUrl) {
     logMessage(`[DEBUG] Selected OCR method: ${settings.ocrMethod}`);
     logMessage(`[DEBUG] Selected parsing method: ${settings.parseMethod}`);
 
-    // Show OCR status
-    if (elements.apiStatus) elements.apiStatus.textContent = `Sending to ${settings.ocrMethod}...`;
+    // Style "Add to Calendar" button for processing state
+    elements.addBtn.classList.remove('primary', 'btn-pulse');
+    elements.addBtn.style.backgroundColor = '#ffffff';
+    elements.addBtn.style.color = '#5f6368'; // Grey text
+
+    // Show OCR status with model
+    const ocrModelName = settings.ocrModel ? ` with ${settings.ocrModel}` : '';
+    if (elements.apiStatus) elements.apiStatus.textContent = `AI OCR with ${settings.ocrMethod}${ocrModelName}...`;
     logMessage(`[DEBUG] Calling runOcr... (Provider: ${settings.ocrMethod}, Model: ${settings.ocrModel || 'default'})`);
     const text = await runOcr(settings.ocrMethod, imageDataUrl);
     logMessage(`[DEBUG] OCR result: ${text ? text.substring(0, 80) + '...' : 'null'}`);
@@ -205,8 +211,9 @@ async function processImage(imageDataUrl) {
     elements.ocrText.dispatchEvent(new Event('input')); // Trigger input event for button visibility
     logMessage(`[DEBUG] OCR completed. Extracted ${text.length} characters`);
 
-    // Show Parse status
-    if (elements.apiStatus) elements.apiStatus.textContent = `Sending to ${settings.parseMethod}...`;
+    // Show Parse status with model
+    const parseModelName = settings.parseModel ? ` with ${settings.parseModel}` : '';
+    if (elements.apiStatus) elements.apiStatus.textContent = `AI Parse with ${settings.parseMethod}${parseModelName}...`;
     logMessage(`[DEBUG] Calling runParse... (Provider: ${settings.parseMethod}, Model: ${settings.parseModel || 'default'})`);
     const parsed = await runParse(settings.parseMethod, text);
     logMessage(`[DEBUG] Parsed result: ${JSON.stringify(parsed, null, 2)}`);
@@ -237,8 +244,10 @@ async function processImage(imageDataUrl) {
     logMessage('=== PROCESSING COMPLETE ===');
     elements.status.textContent = 'Ready - review and click Add to Calendar';
 
-    // Add pulse animation to Add to Calendar button
-    elements.addBtn.classList.add('btn-pulse');
+    // Style "Add to Calendar" button for completion
+    elements.addBtn.classList.add('primary', 'btn-pulse');
+    elements.addBtn.style.backgroundColor = ''; // Revert to CSS default
+    elements.addBtn.style.color = ''; // Revert to CSS default
   } catch (e) {
     logMessage('=== PROCESSING ERROR ===');
     logMessage(`[ERROR] ${e.message}`);

@@ -42,13 +42,15 @@
       position: "fixed",
       left: "20px",
       top: "20px",
-      background: "#1f2937",
-      color: "#f3f4f6",
+      background: "rgba(0, 0, 0, 0.7)",
+      color: "white",
       padding: "8px 12px",
       borderRadius: "8px",
       font: "13px/1.2 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Inter,Arial,sans-serif",
       boxShadow: "0 8px 32px rgba(0,0,0,.3)",
-      zIndex: "2147483647"
+      zIndex: "2147483647",
+      pointerEvents: "none",
+      backdropFilter: "blur(2px)"
     });
 
     overlay.appendChild(box);
@@ -92,6 +94,14 @@
         width: w + "px",
         height: h + "px"
       });
+      // Update guide position and text
+      guide.style.left = (ev.clientX + 20) + "px";
+      guide.style.top = (ev.clientY + 20) + "px";
+      if (w > 5 && h > 5) {
+        guide.textContent = `${w} x ${h}`;
+      } else {
+        guide.textContent = "Drag to capture • Esc to cancel";
+      }
     };
     
     onUp = async (ev) => {
