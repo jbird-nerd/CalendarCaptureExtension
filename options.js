@@ -65,6 +65,27 @@
     if (topHint) topHint.style.display = noKeys ? 'block' : 'none';
   }
 
+  // --- Update helper text for OCR and Parse sections ---
+  function updateHelperText() {
+    // Count how many keys are valid
+    const validKeyCount = Object.values(keyValidationStatus).filter(v => v).length;
+
+    // Update OCR helper text
+    const ocrHelper = $('ocr-helper-text');
+    const parseHelper = $('parse-helper-text');
+
+    if (validKeyCount === 0) {
+      if (ocrHelper) ocrHelper.textContent = 'Fill in at least one API key above to enable OCR providers';
+      if (parseHelper) parseHelper.textContent = 'Fill in at least one API key above to enable parsing providers';
+    } else if (validKeyCount === 1) {
+      if (ocrHelper) ocrHelper.textContent = 'One provider available - click Load Models, select a model, then test';
+      if (parseHelper) parseHelper.textContent = 'One provider available - click Load Models, select a model, then test';
+    } else {
+      if (ocrHelper) ocrHelper.textContent = 'Select provider, then click Load Models to choose a model';
+      if (parseHelper) parseHelper.textContent = 'Select provider, then click Load Models to choose a model';
+    }
+  }
+
   // Helper to create a model select dropdown next to each provider group
   function ensureModelSelect(containerId, providerKey) {
     const container = $(containerId);
@@ -225,6 +246,23 @@
       radio.parentElement?.classList.toggle('disabled', !hasKey);
     });
     updateKeyHints();
+    updateHelperText();
+    autoSelectSingleProvider();
+  }
+
+  // --- Auto-select provider if only one is available ---
+  function autoSelectSingleProvider() {
+    // Auto-select for OCR if only one provider is enabled
+    const ocrRadios = document.querySelectorAll('input[name="ocrMethod"]:not(:disabled)');
+    if (ocrRadios.length === 1 && !ocrRadios[0].checked) {
+      ocrRadios[0].checked = true;
+    }
+
+    // Auto-select for Parse if only one provider is enabled
+    const parseRadios = document.querySelectorAll('input[name="parseMethod"]:not(:disabled)');
+    if (parseRadios.length === 1 && !parseRadios[0].checked) {
+      parseRadios[0].checked = true;
+    }
   }
 
   // --- Build option/test radio groups without changing aesthetics ---
@@ -351,10 +389,11 @@
   }
 
   // Discover candidate models and populate the select with only verified ones
-  async function discoverAndPopulateModels(provider, selectEl) {
+  async function discoverAndPopulateModels(provider, selectEl, progressEl) {
     if (!selectEl) return;
     selectEl.innerHTML = '';
     selectEl.disabled = true;
+    if (progressEl) progressEl.textContent = 'Discovering models...';
     log(`Discovering models for ${provider}...`);
     try {
       const creds = {
@@ -363,10 +402,12 @@
       };
       let candidates = [];
       if (provider.startsWith('openai')) {
+        if (progressEl) progressEl.textContent = 'Fetching OpenAI models...';
         const resp = await fetch('https://api.openai.com/v1/models', { headers: { Authorization: `Bearer ${creds.openaiKey}` } });
         const data = await resp.json();
         if (!resp.ok) {
           log(`OpenAI model-list fetch failed: HTTP ${resp.status} - ${JSON.stringify(data)}`, true);
+          if (progressEl) progressEl.textContent = 'Error fetching models';
         }
         const ids = Array.isArray(data.data) ? data.data.map(m => m.id) : [];
         // Filter out models not suitable for text/vision generation.
@@ -374,14 +415,18 @@
         candidates = ids.filter(id => !openAiFilter.test(id));
         log(`OpenAI models fetched: ${ids.length} total, ${candidates.length} candidate(s) after filtering`);
         if (candidates.length > 0) log(`Sample candidates: ${candidates.slice(0,5).join(', ')}`);
+        if (progressEl) progressEl.textContent = `Found ${candidates.length} models`;
       }
 
       if (provider.startsWith('claude')) {
+        if (progressEl) progressEl.textContent = 'Loading Claude models...';
         log('Using hardcoded list for Claude models.');
         candidates = ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20240620'];
+        if (progressEl) progressEl.textContent = `Found ${candidates.length} models`;
       }
 
       if (provider.startsWith('gemini')) {
+        if (progressEl) progressEl.textContent = 'Fetching Gemini models...';
         log('Scraping Gemini models from https://ai.google.dev/gemini-api/docs/models ...');
         try {
           const resp = await fetch('https://ai.google.dev/gemini-api/docs/models');
@@ -403,11 +448,13 @@
             candidates = found.filter(m => !/(-vision|embed|audio|tts|live|image-generation)/.test(m));
           }
           log(`Gemini models scraped: ${candidates.length} found. Samples: ${candidates.slice(0, 5).join(', ')}`);
+          if (progressEl) progressEl.textContent = `Found ${candidates.length} models`;
         } catch (e) {
           log('Failed to scrape Gemini models: ' + e.message, true);
           // Fallback to a small, known list if scraping fails
           candidates = ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest'];
           log(`Using fallback Gemini models: ${candidates.join(', ')}`);
+          if (progressEl) progressEl.textContent = `Using ${candidates.length} fallback models`;
         }
       }
 
@@ -453,11 +500,14 @@
           if (opt) selectEl.value = savedModel;
         }
         log(`Models loaded for ${provider}.`);
+        if (progressEl) progressEl.textContent = 'Select model and test';
       } else {
         log(`No models found for ${provider}.`, true);
+        if (progressEl) progressEl.textContent = 'No models found';
       }
     } catch (e) {
       log(`Model discovery failed for ${provider}: ${e.message}`, true);
+      if (progressEl) progressEl.textContent = 'Error: ' + e.message;
     }
   }
 
@@ -1002,10 +1052,12 @@
         loadBtn.disabled = true; // Start as disabled
         loadBtn.addEventListener('click', async (e) => {
           e.preventDefault();
+          const progressEl = row.querySelector('.progress-indicator');
           loadBtn.disabled = true;
           let origLabel = loadBtn.textContent;
           loadBtn.textContent = 'Loading...';
-          await discoverAndPopulateModels(opt.value, row.querySelector('.model-select'));
+          if (progressEl) progressEl.textContent = 'Fetching models...';
+          await discoverAndPopulateModels(opt.value, row.querySelector('.model-select'), progressEl);
           loadBtn.disabled = false;
           loadBtn.textContent = origLabel;
         });
@@ -1020,6 +1072,11 @@
         placeholderOpt.disabled = true;
         modelSel.append(placeholderOpt);
 
+        // Progress indicator
+        const progressEl = document.createElement('span');
+        progressEl.className = 'progress-indicator';
+        progressEl.textContent = '';
+
         // clicking label checks radio and triggers onChoose
         label.addEventListener('click', (e) => {
           if (input.disabled) { e.preventDefault(); return; }
@@ -1028,7 +1085,7 @@
           if (onChoose) onChoose(opt.value);
         });
 
-        row.append(label, loadBtn, modelSel);
+        row.append(label, loadBtn, modelSel, progressEl);
         container.append(row);
       });
     }
