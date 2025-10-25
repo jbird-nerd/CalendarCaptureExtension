@@ -27,7 +27,8 @@ const elements = {
   showLogBtn: document.getElementById('show-log'),
   configBtn: document.getElementById('config'),
   cancelBtn: document.getElementById('cancel'),
-  errorMsg: document.getElementById('modal-error') // Add an error message element in modal.html
+  errorMsg: document.getElementById('modal-error'),
+  apiStatus: document.getElementById('api-status')
 };
 
 // Utilities
@@ -194,6 +195,9 @@ async function processImage(imageDataUrl) {
     logMessage(`[DEBUG] Settings: ${JSON.stringify(settings)}`);
     logMessage(`[DEBUG] Selected OCR method: ${settings.ocrMethod}`);
     logMessage(`[DEBUG] Selected parsing method: ${settings.parseMethod}`);
+
+    // Show OCR status
+    if (elements.apiStatus) elements.apiStatus.textContent = `Sending to ${settings.ocrMethod}...`;
     logMessage(`[DEBUG] Calling runOcr... (Provider: ${settings.ocrMethod}, Model: ${settings.ocrModel || 'default'})`);
     const text = await runOcr(settings.ocrMethod, imageDataUrl);
     logMessage(`[DEBUG] OCR result: ${text ? text.substring(0, 80) + '...' : 'null'}`);
@@ -201,9 +205,14 @@ async function processImage(imageDataUrl) {
     elements.ocrText.dispatchEvent(new Event('input')); // Trigger input event for button visibility
     logMessage(`[DEBUG] OCR completed. Extracted ${text.length} characters`);
 
+    // Show Parse status
+    if (elements.apiStatus) elements.apiStatus.textContent = `Sending to ${settings.parseMethod}...`;
     logMessage(`[DEBUG] Calling runParse... (Provider: ${settings.parseMethod}, Model: ${settings.parseModel || 'default'})`);
     const parsed = await runParse(settings.parseMethod, text);
     logMessage(`[DEBUG] Parsed result: ${JSON.stringify(parsed, null, 2)}`);
+
+    // Clear API status
+    if (elements.apiStatus) elements.apiStatus.textContent = '';
 
     // Use requestAnimationFrame to ensure the DOM is ready for updates, preventing race conditions.
     requestAnimationFrame(() => {
@@ -226,12 +235,16 @@ async function processImage(imageDataUrl) {
     });
 
     logMessage('=== PROCESSING COMPLETE ===');
-    elements.status.textContent = 'Ready - review and edit as needed';
+    elements.status.textContent = 'Ready - review and click Add to Calendar';
+
+    // Add pulse animation to Add to Calendar button
+    elements.addBtn.classList.add('btn-pulse');
   } catch (e) {
     logMessage('=== PROCESSING ERROR ===');
     logMessage(`[ERROR] ${e.message}`);
     elements.status.textContent = 'Processing failed - check log for details';
     if (elements.errorMsg) elements.errorMsg.textContent = `Error: ${e.message}`;
+    if (elements.apiStatus) elements.apiStatus.textContent = '';
   }
 }
 
