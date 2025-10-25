@@ -62,7 +62,7 @@ async function callOpenAIVisionOCRDebug(dataUrl, settings = {}) {
   };
 
   console.log(`[T2C DEBUG] Calling OpenAI Vision OCR: ${endpoint} (model: ${chosenModel})`);
-  
+
   const makeRequest = async (payload) => {
     return await fetch(endpoint, {
       method: 'POST',
@@ -107,7 +107,7 @@ async function callClaudeVisionOCRDebug(dataUrl, settings = {}) {
         role: 'user',
         content: [
           { type: 'image', source: { type: 'base64', media_type: 'image/png', data: base64 } },
-          { type: 'text', text: 'Extract text from this image.' },
+          { type: 'text', text: 'Extract all text from this image exactly as it appears. Do not add any commentary or description.' },
         ],
       },
     ],
@@ -267,8 +267,8 @@ async function callClaudeParseDebug(text, settings = {}) {
   const resp = await fetch(endpoint, {
     method: 'POST',
     headers: {
-      'x-api-key': settings.claudeKey, 
-      'anthropic-version': '2023-06-01', 
+      'x-api-key': settings.claudeKey,
+      'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true',
       'Content-Type': 'application/json',
     },

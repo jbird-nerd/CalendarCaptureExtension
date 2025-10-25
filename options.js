@@ -442,15 +442,26 @@
       testBtn.textContent = 'Test';
       testBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        testBtn.disabled = true;
-        testBtn.classList.add('flashing');
-        if (isOcr) {
-          await runOcrTest(opt.value);
-        } else {
-          await runParserTest(opt.value);
+        const modelSel = row.querySelector('.model-select');
+        const modelName = modelSel ? modelSel.value : '';
+        if (!modelName) {
+          log(`No model selected for ${opt.label}. Please select a model before testing.`, true);
+          return;
         }
-        testBtn.disabled = false;
-        testBtn.classList.remove('flashing');
+
+        const btn = e.target;
+        btn.disabled = true;
+        btn.classList.add('flashing');
+        btn.textContent = 'Testing...';
+        btn.classList.remove('success', 'error');
+
+        if (isOcr) {
+          await runOcrTest(opt.value, modelName, btn);
+        } else {
+          await runParserTest(opt.value, modelName, btn);
+        }
+
+        // The run*Test functions now handle the button state updates
       });
 
       // clicking label checks radio and triggers onChoose
@@ -496,10 +507,36 @@
       }
 
       if (provider.startsWith('claude')) {
-        if (progressEl) progressEl.textContent = 'Loading Claude models...';
-        log('Using hardcoded list for Claude models.');
-        candidates = ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20240620'];
-        if (progressEl) progressEl.textContent = `Found ${candidates.length} models`;
+        if (progressEl) progressEl.textContent = 'Fetching Claude models...';
+        log('[T2C DEBUG] Calling Anthropic /v1/models endpoint.');
+        try {
+          const claudeKey = ($('claude-key')?.value || '').trim();
+          if (!claudeKey) throw new Error('Claude API key not provided.');
+
+          const resp = await fetch('https://api.anthropic.com/v1/models', {
+            headers: {
+              'x-api-key': claudeKey,
+              'anthropic-version': '2023-06-01',
+            },
+          });
+
+          const data = await resp.json();
+          log(`[T2C DEBUG] Anthropic /v1/models response: ${JSON.stringify(data, null, 2)}`);
+
+          if (!resp.ok) {
+            const err = data.error || { message: `HTTP ${resp.status}` };
+            throw new Error(err.message);
+          }
+
+          candidates = data.data.map(model => model.id);
+          log(`Found ${candidates.length} Claude models.`);
+          if (progressEl) progressEl.textContent = `Found ${candidates.length} models`;
+
+        } catch (e) {
+          log(`Failed to fetch Claude models: ${e.message}`, true);
+          if (progressEl) progressEl.textContent = 'Error fetching models';
+          candidates = []; // Ensure no models are shown on failure
+        }
       }
 
       if (provider.startsWith('gemini')) {
@@ -892,17 +929,17 @@
     // Claude
     if (keys.claude) {
       try {
-        const resp = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'x-api-key': keys.claude, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: 'claude-3-haiku-20240307', messages: [{ role: 'user', content: 'test' }], max_tokens: 10 }),
+        // A successful call to the /v1/models endpoint is the most reliable way to validate a key.
+        const resp = await fetch('https://api.anthropic.com/v1/models', {
+          headers: { 'x-api-key': keys.claude, 'anthropic-version': '2023-06-01' },
         });
-        if (resp.status !== 401) { // 401 is bad key, other errors might be temporary
+        if (resp.ok) {
           keyValidationStatus.claude = true;
-          log('Claude key appears valid.');
+          log('Claude key is valid.');
           clearKeyError('claude-key');
         } else {
-          throw new Error('Invalid API key');
+          const err = await resp.json();
+          throw new Error(err.error?.message || `HTTP ${resp.status}`);
         }
       } catch (e) {
         showKeyError('claude-key', `Validation failed: ${e.message}`);
