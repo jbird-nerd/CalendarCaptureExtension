@@ -613,6 +613,7 @@
           const opt = Array.from(selectEl.options).find(o => o.value === savedModel);
           if (opt) selectEl.value = savedModel;
         }
+        selectEl.addEventListener('change', updateCurrentSelectionInfo);
         log(`Models loaded for ${provider}.`);
         if (progressEl) progressEl.textContent = 'Select model and test';
       } else {
@@ -968,28 +969,6 @@
     // The button remains enabled for further changes.
   }
 
-  async function saveMethodSelections() {
-    const ocrMethod = document.querySelector('input[name="ocrMethod"]:checked')?.value;
-    const parseMethod = document.querySelector('input[name="parseMethod"]:checked')?.value;
-    const ocrRow = document.querySelector(`.provider-row input[value="${ocrMethod}"]`)?.closest('.provider-row');
-    const ocrModel = ocrRow?.querySelector('.model-select')?.value || '';
-    const parseRow = document.querySelector(`.provider-row input[value="${parseMethod}"]`)?.closest('.provider-row');
-    const parseModel = parseRow?.querySelector('.model-select')?.value || '';
-
-    await chrome.storage.sync.set({
-      ocrMethod,
-      parseMethod,
-      ocrModel,
-      parseModel,
-    });
-    log(`Saved method selections: OCR=${ocrMethod} (${ocrModel}), Parse=${parseMethod} (${parseModel})`);
-    const statusEl = $('methodSaveStatus');
-    if (statusEl) {
-      statusEl.textContent = '✅ Methods Saved!';
-      setTimeout(() => { statusEl.textContent = ''; }, 3000);
-    }
-  }
-
   async function saveConfiguration() {
     // Validate all keys
     const keys = ['openai-key', 'gemini-key', 'claude-key', 'google-key'];
@@ -1018,12 +997,6 @@
       const ocrMethod = document.querySelector('input[name="ocrMethod"]:checked')?.value;
       const parseMethod = document.querySelector('input[name="parseMethod"]:checked')?.value;
       // Get selected models from dropdowns
-      const ocrRow = document.querySelector(`.provider-row input[value="${ocrMethod}"]`)?.closest('.provider-row');
-      const ocrModel = ocrRow?.querySelector('.model-select')?.value || '';
-      const parseRow = document.querySelector(`.provider-row input[value="${parseMethod}"]`)?.closest('.provider-row');
-      const parseModel = parseRow?.querySelector('.model-select')?.value || '';
-      log(`[SAVE] OCR: method=${ocrMethod}, model=${ocrModel}`);
-      log(`[SAVE] Parse: method=${parseMethod}, model=${parseModel}`);
       const config = {
         ocrMethod,
         parseMethod,
@@ -1033,16 +1006,10 @@
         googleKey: $('google-key')?.value.trim() || '',
       };
       await chrome.storage.sync.set(config);
-      // Also save selected models for OCR and Parse
       await validateApiKeys();
-
-      await chrome.storage.sync.set({ ocrModel, parseModel });
       const statusEl = $('saveStatus');
       if (statusEl) {
-        statusEl.textContent = '✅ Configuration Saved!';
-        setTimeout(() => {
-          statusEl.textContent = '';
-        }, 3000);
+        statusEl.textContent = '✅ Choose AI models below';
       }
       log('Configuration saved successfully.');
     } catch (e) {
@@ -1155,7 +1122,7 @@
       });
     });
     $('check-files-btn')?.addEventListener('click', testLocalOCR);
-    $('save-methods-btn')?.addEventListener('click', saveMethodSelections);
+    // $('save-methods-btn')?.addEventListener('click', saveMethodSelections); // No longer needed
     $('download-files-btn')?.addEventListener('click', downloadTesseractBundle);
     $('ocr-image-dropzone')?.addEventListener('paste', handlePastedImage);
     $('clear-log-btn')?.addEventListener('click', () => {
@@ -1289,6 +1256,8 @@
           if (onChoose) onChoose(opt.value);
         });
 
+        input.addEventListener('change', updateCurrentSelectionInfo);
+
         row.append(label, loadBtn, modelSel, progressEl);
         container.append(row);
       });
@@ -1297,6 +1266,10 @@
     const saveBtn = $('save-config-btn');
     saveBtn.textContent = 'Save & Validate Keys';
     saveBtn.disabled = true;
+    const statusEl = $('saveStatus');
+    if (statusEl) {
+        statusEl.textContent = '';
+    }
 
     createProviderRowsNoTest('ocr-method-options', 'ocrMethod', [
       { value: 'openai-vision', label: 'OpenAI Vision' },
