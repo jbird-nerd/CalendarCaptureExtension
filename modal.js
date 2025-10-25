@@ -27,7 +27,8 @@ const elements = {
   showLogBtn: document.getElementById('show-log'),
   configBtn: document.getElementById('config'),
   cancelBtn: document.getElementById('cancel'),
-  errorMsg: document.getElementById('modal-error') // Add an error message element in modal.html
+  errorMsg: document.getElementById('modal-error'),
+  apiStatus: document.getElementById('api-status')
 };
 
 // Utilities
@@ -194,6 +195,15 @@ async function processImage(imageDataUrl) {
     logMessage(`[DEBUG] Settings: ${JSON.stringify(settings)}`);
     logMessage(`[DEBUG] Selected OCR method: ${settings.ocrMethod}`);
     logMessage(`[DEBUG] Selected parsing method: ${settings.parseMethod}`);
+
+    // Style "Add to Calendar" button for processing state
+    elements.addBtn.classList.remove('primary', 'btn-pulse');
+    elements.addBtn.style.backgroundColor = '#ffffff';
+    elements.addBtn.style.color = '#5f6368'; // Grey text
+
+    // Show OCR status with model
+    const ocrModelName = settings.ocrModel || 'default model';
+    if (elements.apiStatus) elements.apiStatus.textContent = `OCRing with ${ocrModelName}...`;
     logMessage(`[DEBUG] Calling runOcr... (Provider: ${settings.ocrMethod}, Model: ${settings.ocrModel || 'default'})`);
     const text = await runOcr(settings.ocrMethod, imageDataUrl);
     logMessage(`[DEBUG] OCR result: ${text ? text.substring(0, 80) + '...' : 'null'}`);
@@ -201,9 +211,15 @@ async function processImage(imageDataUrl) {
     elements.ocrText.dispatchEvent(new Event('input')); // Trigger input event for button visibility
     logMessage(`[DEBUG] OCR completed. Extracted ${text.length} characters`);
 
+    // Show Parse status with model
+    const parseModelName = settings.parseModel || 'default model';
+    if (elements.apiStatus) elements.apiStatus.textContent = `Parsing with ${parseModelName}...`;
     logMessage(`[DEBUG] Calling runParse... (Provider: ${settings.parseMethod}, Model: ${settings.parseModel || 'default'})`);
     const parsed = await runParse(settings.parseMethod, text);
     logMessage(`[DEBUG] Parsed result: ${JSON.stringify(parsed, null, 2)}`);
+
+    // Clear API status
+    if (elements.apiStatus) elements.apiStatus.textContent = '';
 
     // Use requestAnimationFrame to ensure the DOM is ready for updates, preventing race conditions.
     requestAnimationFrame(() => {
@@ -226,12 +242,18 @@ async function processImage(imageDataUrl) {
     });
 
     logMessage('=== PROCESSING COMPLETE ===');
-    elements.status.textContent = 'Ready - review and edit as needed';
+    elements.status.textContent = 'Ready - review and click Add to Calendar';
+
+    // Style "Add to Calendar" button for completion
+    elements.addBtn.classList.add('primary', 'btn-pulse');
+    elements.addBtn.style.backgroundColor = ''; // Revert to CSS default
+    elements.addBtn.style.color = ''; // Revert to CSS default
   } catch (e) {
     logMessage('=== PROCESSING ERROR ===');
     logMessage(`[ERROR] ${e.message}`);
     elements.status.textContent = 'Processing failed - check log for details';
     if (elements.errorMsg) elements.errorMsg.textContent = `Error: ${e.message}`;
+    if (elements.apiStatus) elements.apiStatus.textContent = '';
   }
 }
 

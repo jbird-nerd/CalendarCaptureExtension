@@ -65,6 +65,53 @@
     if (topHint) topHint.style.display = noKeys ? 'block' : 'none';
   }
 
+  // --- Update helper text for OCR and Parse sections ---
+  function updateHelperText() {
+    const validKeyCount = Object.values(keyValidationStatus).filter(v => v).length;
+    const ocrHelper = $('ocr-helper-text');
+    const parseHelper = $('parse-helper-text');
+
+    if (validKeyCount === 0) {
+      if (ocrHelper) ocrHelper.textContent = 'Fill in at least one API key above to enable OCR providers';
+      if (parseHelper) parseHelper.textContent = 'Fill in at least one API key above to enable parsing providers';
+      return;
+    }
+
+    // Helper for OCR section
+    if (ocrHelper) {
+      const enabledRows = document.querySelectorAll('#ocr-method-options .provider-row:not(.disabled)');
+      const unpopulated = Array.from(enabledRows).some(row => row.querySelector('.model-select')?.options.length <= 1);
+
+      let text = '';
+      if (enabledRows.length > 1) {
+        text += 'Choose a provider';
+      }
+      if (unpopulated) {
+        text += (text ? ', then ' : '') + 'click Load Models';
+      } else {
+        text += (text ? ' and ' : '') + 'choose a model';
+      }
+      ocrHelper.textContent = text;
+    }
+
+    // Helper for Parse section
+    if (parseHelper) {
+      const enabledRows = document.querySelectorAll('#parse-method-options .provider-row:not(.disabled)');
+      const unpopulated = Array.from(enabledRows).some(row => row.querySelector('.model-select')?.options.length <= 1);
+
+      let text = '';
+      if (enabledRows.length > 1) {
+        text += 'Choose a provider';
+      }
+      if (unpopulated) {
+        text += (text ? ', then ' : '') + 'click Load Models';
+      } else {
+        text += (text ? ' and ' : '') + 'choose a model';
+      }
+      parseHelper.textContent = text;
+    }
+  }
+
   // Helper to create a model select dropdown next to each provider group
   function ensureModelSelect(containerId, providerKey) {
     const container = $(containerId);
@@ -225,6 +272,74 @@
       radio.parentElement?.classList.toggle('disabled', !hasKey);
     });
     updateKeyHints();
+    updateHelperText();
+    autoSelectSingleProvider();
+  }
+
+  // --- Auto-select provider if only one is available ---
+  function autoSelectSingleProvider() {
+    // Auto-select for OCR if only one provider is enabled
+    const ocrRadios = document.querySelectorAll('input[name="ocrMethod"]:not(:disabled)');
+    if (ocrRadios.length === 1 && !ocrRadios[0].checked) {
+      ocrRadios[0].checked = true;
+    }
+
+    // Auto-select for Parse if only one provider is enabled
+    const parseRadios = document.querySelectorAll('input[name="parseMethod"]:not(:disabled)');
+    if (parseRadios.length === 1 && !parseRadios[0].checked) {
+      parseRadios[0].checked = true;
+    }
+
+    // Update selection info display
+    updateCurrentSelectionInfo();
+  }
+
+  // --- Update current selection info display ---
+  function updateCurrentSelectionInfo() {
+    const ocrInfoEl = $('current-ocr-info');
+    const parseInfoEl = $('current-parse-info');
+
+    if (!ocrInfoEl || !parseInfoEl) return;
+
+    // Get selected OCR provider and model
+    const selectedOcrRadio = document.querySelector('input[name="ocrMethod"]:checked');
+    if (selectedOcrRadio) {
+      const ocrRow = selectedOcrRadio.closest('.provider-row');
+      const ocrModelSelect = ocrRow?.querySelector('.model-select');
+      const providerName = selectedOcrRadio.parentElement.textContent.trim();
+      const modelName = ocrModelSelect?.value || 'No model selected';
+
+      if (modelName && modelName !== '' && modelName !== '- Select -') {
+        ocrInfoEl.textContent = `${providerName} - ${modelName}`;
+        ocrInfoEl.style.color = 'var(--success)';
+      } else {
+        ocrInfoEl.textContent = `${providerName} (select a model)`;
+        ocrInfoEl.style.color = 'var(--warning)';
+      }
+    } else {
+      ocrInfoEl.textContent = 'None selected';
+      ocrInfoEl.style.color = 'var(--text-secondary)';
+    }
+
+    // Get selected Parse provider and model
+    const selectedParseRadio = document.querySelector('input[name="parseMethod"]:checked');
+    if (selectedParseRadio) {
+      const parseRow = selectedParseRadio.closest('.provider-row');
+      const parseModelSelect = parseRow?.querySelector('.model-select');
+      const providerName = selectedParseRadio.parentElement.textContent.trim();
+      const modelName = parseModelSelect?.value || 'No model selected';
+
+      if (modelName && modelName !== '' && modelName !== '- Select -') {
+        parseInfoEl.textContent = `${providerName} - ${modelName}`;
+        parseInfoEl.style.color = 'var(--success)';
+      } else {
+        parseInfoEl.textContent = `${providerName} (select a model)`;
+        parseInfoEl.style.color = 'var(--warning)';
+      }
+    } else {
+      parseInfoEl.textContent = 'None selected';
+      parseInfoEl.style.color = 'var(--text-secondary)';
+    }
   }
 
   // --- Build option/test radio groups without changing aesthetics ---
@@ -351,10 +466,11 @@
   }
 
   // Discover candidate models and populate the select with only verified ones
-  async function discoverAndPopulateModels(provider, selectEl) {
+  async function discoverAndPopulateModels(provider, selectEl, progressEl) {
     if (!selectEl) return;
     selectEl.innerHTML = '';
     selectEl.disabled = true;
+    if (progressEl) progressEl.textContent = 'Discovering models...';
     log(`Discovering models for ${provider}...`);
     try {
       const creds = {
@@ -363,10 +479,12 @@
       };
       let candidates = [];
       if (provider.startsWith('openai')) {
+        if (progressEl) progressEl.textContent = 'Fetching OpenAI models...';
         const resp = await fetch('https://api.openai.com/v1/models', { headers: { Authorization: `Bearer ${creds.openaiKey}` } });
         const data = await resp.json();
         if (!resp.ok) {
           log(`OpenAI model-list fetch failed: HTTP ${resp.status} - ${JSON.stringify(data)}`, true);
+          if (progressEl) progressEl.textContent = 'Error fetching models';
         }
         const ids = Array.isArray(data.data) ? data.data.map(m => m.id) : [];
         // Filter out models not suitable for text/vision generation.
@@ -374,14 +492,18 @@
         candidates = ids.filter(id => !openAiFilter.test(id));
         log(`OpenAI models fetched: ${ids.length} total, ${candidates.length} candidate(s) after filtering`);
         if (candidates.length > 0) log(`Sample candidates: ${candidates.slice(0,5).join(', ')}`);
+        if (progressEl) progressEl.textContent = `Found ${candidates.length} models`;
       }
 
       if (provider.startsWith('claude')) {
+        if (progressEl) progressEl.textContent = 'Loading Claude models...';
         log('Using hardcoded list for Claude models.');
         candidates = ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20240620'];
+        if (progressEl) progressEl.textContent = `Found ${candidates.length} models`;
       }
 
       if (provider.startsWith('gemini')) {
+        if (progressEl) progressEl.textContent = 'Fetching Gemini models...';
         log('Scraping Gemini models from https://ai.google.dev/gemini-api/docs/models ...');
         try {
           const resp = await fetch('https://ai.google.dev/gemini-api/docs/models');
@@ -403,11 +525,13 @@
             candidates = found.filter(m => !/(-vision|embed|audio|tts|live|image-generation)/.test(m));
           }
           log(`Gemini models scraped: ${candidates.length} found. Samples: ${candidates.slice(0, 5).join(', ')}`);
+          if (progressEl) progressEl.textContent = `Found ${candidates.length} models`;
         } catch (e) {
           log('Failed to scrape Gemini models: ' + e.message, true);
           // Fallback to a small, known list if scraping fails
           candidates = ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest'];
           log(`Using fallback Gemini models: ${candidates.join(', ')}`);
+          if (progressEl) progressEl.textContent = `Using ${candidates.length} fallback models`;
         }
       }
 
@@ -453,11 +577,17 @@
           if (opt) selectEl.value = savedModel;
         }
         log(`Models loaded for ${provider}.`);
+        if (progressEl) progressEl.textContent = 'Select model and test';
       } else {
         log(`No models found for ${provider}.`, true);
+        if (progressEl) progressEl.textContent = 'No models found';
       }
+      // Update helper text after models are loaded
+      updateHelperText();
     } catch (e) {
       log(`Model discovery failed for ${provider}: ${e.message}`, true);
+      if (progressEl) progressEl.textContent = 'Error: ' + e.message;
+      updateHelperText();
     }
   }
 
@@ -543,20 +673,33 @@
   }
 
   // --- Test runners talk to background (centralized API is there) ---
-  async function runOcrTest(provider, modelName) {
+  async function runOcrTest(provider, modelName, btn) {
     if (!testImageDataUrl) {
-      log('No image loaded for the OCR test.', true); return;
-    } else {
-      log('[DEBUG] No modelName provided to backend.');
+      log('No image loaded for the OCR test.', true);
+      return;
     }
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Testing...';
+      btn.classList.remove('success', 'error');
+    }
+
     const resultBox = document.getElementById('ocr-result');
-    if (resultBox) { resultBox.value = ''; resultBox.disabled = true; }
+    if (resultBox) {
+      resultBox.value = '';
+      resultBox.disabled = true;
+    }
+
     try {
       const response = await chrome.runtime.sendMessage({
-        type: 'DIAG_TEST_OCR', provider, model: modelName, dataUrl: testImageDataUrl,
+        type: 'DIAG_TEST_OCR',
+        provider,
+        model: modelName,
+        dataUrl: testImageDataUrl,
       });
-      // extra debug: log what we sent
+
       log(`Requesting background script to test OCR with: ${provider} (model: ${modelName || 'none'})`);
+
       if (response && response.ok) {
         if (response.debug) {
           const { payload, ...restOfDebug } = response.debug;
@@ -564,30 +707,72 @@
         }
         log(`OCR test success for ${provider} (model: ${modelName}). Extracted ${response.text.length} chars.`);
         if (resultBox) resultBox.value = response.text;
+        if (btn) {
+          btn.textContent = 'Success';
+          btn.classList.add('success');
+        }
       } else {
         throw new Error(response?.error || 'Unknown error');
       }
     } catch (e) {
       log(`OCR test FAILED for ${provider} (model: ${modelName}): ${e.message}`, true);
       if (resultBox) resultBox.value = 'ERROR: ' + e.message;
+      if (btn) {
+        btn.textContent = 'Error';
+        btn.classList.add('error');
+      }
     } finally {
-      if (resultBox) { resultBox.disabled = false; }
+      if (resultBox) {
+        resultBox.disabled = false;
+      }
+      if (btn) {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Test';
+          btn.classList.remove('success', 'error');
+        }, 3000);
+      }
     }
   }
 
-  async function runParserTest(provider, modelName) {
+  async function runParserTest(provider, modelName, btn) {
     const textToParse = document.getElementById('parser-input')?.value || '';
     const resultBox = document.getElementById('parser-result');
-    if (resultBox) { resultBox.value = ''; resultBox.disabled = true; }
+
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Testing...';
+      btn.classList.remove('success', 'error');
+    }
+
+    if (resultBox) {
+      resultBox.value = '';
+      resultBox.disabled = true;
+    }
+
     if (!textToParse) {
       log('No text in the input box to parse.', true);
       if (resultBox) resultBox.value = 'ERROR: No text to parse.';
+      if (btn) {
+        btn.textContent = 'Error';
+        btn.classList.add('error');
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Test';
+          btn.classList.remove('success', 'error');
+        }, 3000);
+      }
       return;
     }
+
     try {
       const response = await chrome.runtime.sendMessage({
-        type: 'DIAG_TEST_PARSE', provider, model: modelName, text: textToParse,
+        type: 'DIAG_TEST_PARSE',
+        provider,
+        model: modelName,
+        text: textToParse,
       });
+
       if (response && response.ok) {
         log(`Parser test success for ${provider} (model: ${modelName}):`);
         if (response.debug) {
@@ -596,14 +781,31 @@
         }
         log(JSON.stringify(response.result, null, 2));
         if (resultBox) resultBox.value = JSON.stringify(response.result, null, 2);
+        if (btn) {
+          btn.textContent = 'Success';
+          btn.classList.add('success');
+        }
       } else {
         throw new Error(response?.error || 'Unknown error');
       }
     } catch (e) {
       log(`Parser test FAILED for ${provider} (model: ${modelName}): ${e.message}`, true);
       if (resultBox) resultBox.value = 'ERROR: ' + e.message;
+      if (btn) {
+        btn.textContent = 'Error';
+        btn.classList.add('error');
+      }
     } finally {
-      if (resultBox) { resultBox.disabled = false; }
+      if (resultBox) {
+        resultBox.disabled = false;
+      }
+      if (btn) {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Test';
+          btn.classList.remove('success', 'error');
+        }, 3000);
+      }
     }
   }
 
@@ -874,6 +1076,8 @@
         }
       }
       log('Configuration loaded and UI restored.');
+      // Update current selection info display
+      updateCurrentSelectionInfo();
     } catch (e) {
       log(`Failed to load configuration: ${e.message}`, true);
     }
@@ -931,7 +1135,8 @@
     });
 
     // OCR Test button wiring
-    $('ocr-test-btn')?.addEventListener('click', async () => {
+    $('ocr-test-btn')?.addEventListener('click', async (e) => {
+      const btn = e.target;
       // Find selected OCR provider and model
       const ocrRadio = document.querySelector('input[name="ocrMethod"]:checked');
       if (!ocrRadio) {
@@ -950,11 +1155,12 @@
       const resultBox = $('ocr-result');
       if (resultBox) resultBox.value = '';
       // Run test
-      await runOcrTest(ocrRadio.value, modelName);
+      await runOcrTest(ocrRadio.value, modelName, btn);
     });
 
     // Parser Test button wiring
-    $('parser-test-btn')?.addEventListener('click', async () => {
+    $('parser-test-btn')?.addEventListener('click', async (e) => {
+      const btn = e.target;
       // Find selected Parser provider and model
       const parserRadio = document.querySelector('input[name="parseMethod"]:checked');
       if (!parserRadio) {
@@ -969,7 +1175,12 @@
       const resultBox = $('parser-result');
       if (resultBox) resultBox.value = '';
       // Run test
-      await runParserTest(parserRadio.value, modelName);
+      await runParserTest(parserRadio.value, modelName, btn);
+    });
+
+    // Exit Options button
+    $('exit-options-btn')?.addEventListener('click', () => {
+      window.close();
     });
   }
 
@@ -1002,10 +1213,12 @@
         loadBtn.disabled = true; // Start as disabled
         loadBtn.addEventListener('click', async (e) => {
           e.preventDefault();
+          const progressEl = row.querySelector('.progress-indicator');
           loadBtn.disabled = true;
           let origLabel = loadBtn.textContent;
           loadBtn.textContent = 'Loading...';
-          await discoverAndPopulateModels(opt.value, row.querySelector('.model-select'));
+          if (progressEl) progressEl.textContent = 'Fetching models...';
+          await discoverAndPopulateModels(opt.value, row.querySelector('.model-select'), progressEl);
           loadBtn.disabled = false;
           loadBtn.textContent = origLabel;
         });
@@ -1020,15 +1233,26 @@
         placeholderOpt.disabled = true;
         modelSel.append(placeholderOpt);
 
+        // Update selection info when model changes
+        modelSel.addEventListener('change', () => {
+          updateCurrentSelectionInfo();
+        });
+
+        // Progress indicator
+        const progressEl = document.createElement('span');
+        progressEl.className = 'progress-indicator';
+        progressEl.textContent = '';
+
         // clicking label checks radio and triggers onChoose
         label.addEventListener('click', (e) => {
           if (input.disabled) { e.preventDefault(); return; }
           input.checked = true;
           updateAllOptionStates(); // Re-evaluate button states when a radio is clicked
+          updateCurrentSelectionInfo(); // Update selection info
           if (onChoose) onChoose(opt.value);
         });
 
-        row.append(label, loadBtn, modelSel);
+        row.append(label, loadBtn, modelSel, progressEl);
         container.append(row);
       });
     }

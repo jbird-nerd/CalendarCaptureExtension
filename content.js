@@ -14,41 +14,43 @@
     overlay = document.createElement("div");
     overlay.id = `${NS}-overlay`;
     Object.assign(overlay.style, {
-      position: "fixed", 
-      inset: "0", 
+      position: "fixed",
+      inset: "0",
       zIndex: "2147483646",
-      cursor: "crosshair", 
+      cursor: "crosshair",
       background: "transparent"
     });
 
     // dashed rectangle (the selection)
     box = document.createElement("div");
     Object.assign(box.style, {
-      position: "fixed", 
-      border: "3px dashed #3b82f6", 
+      position: "fixed",
+      border: "3px dashed #3b82f6",
       background: "rgba(59, 130, 246, 0.1)",
-      left: "0", 
-      top: "0", 
-      width: "0", 
-      height: "0", 
+      left: "0",
+      top: "0",
+      width: "0",
+      height: "0",
       pointerEvents: "none",
       borderRadius: "4px"
     });
 
     // tiny helper bubble
     guide = document.createElement("div");
-    guide.textContent = "Drag to capture • Esc to cancel";
+    guide.textContent = "Drag to Capture; Release to End";
     Object.assign(guide.style, {
-      position: "fixed", 
-      left: "20px", 
+      position: "fixed",
+      left: "20px",
       top: "20px",
-      background: "#1f2937", 
-      color: "#f3f4f6", 
+      background: "rgba(0, 0, 0, 0.7)",
+      color: "white",
       padding: "8px 12px",
-      borderRadius: "8px", 
+      borderRadius: "8px",
       font: "13px/1.2 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Inter,Arial,sans-serif",
       boxShadow: "0 8px 32px rgba(0,0,0,.3)",
-      zIndex: "2147483647"
+      zIndex: "2147483647",
+      pointerEvents: "none",
+      backdropFilter: "blur(2px)"
     });
 
     overlay.appendChild(box);
@@ -57,9 +59,9 @@
 
   function removeOverlay() {
     if (!overlay) return;
-    overlay.remove(); 
-    overlay = null; 
-    box = null; 
+    overlay.remove();
+    overlay = null;
+    box = null;
     guide = null;
     document.removeEventListener("keydown", onEsc, true);
   }
@@ -79,20 +81,29 @@
     document.addEventListener("keydown", onEsc, true);
 
     start = null;
-    
+
     onMove = (ev) => {
       if (!start) return;
       const x = Math.min(ev.clientX, start.x);
       const y = Math.min(ev.clientY, start.y);
       const w = Math.abs(ev.clientX - start.x);
       const h = Math.abs(ev.clientY - start.y);
-      Object.assign(box.style, { 
-        left: x + "px", 
-        top: y + "px", 
-        width: w + "px", 
-        height: h + "px" 
+      Object.assign(box.style, {
+        left: x + "px",
+        top: y + "px",
+        width: w + "px",
+        height: h + "px"
       });
+      // Update guide position and text
+      guide.style.left = (ev.clientX + 20) + "px";
+      guide.style.top = (ev.clientY + 20) + "px";
     };
+
+    const onPreMove = (ev) => {
+      guide.style.left = (ev.clientX + 20) + "px";
+      guide.style.top = (ev.clientY + 20) + "px";
+    };
+    overlay.addEventListener("mousemove", onPreMove);
     
     onUp = async (ev) => {
       overlay.removeEventListener("mousemove", onMove);
@@ -130,6 +141,7 @@
 
     overlay.addEventListener("mousedown", (ev) => {
       if (ev.button !== 0) return;
+      overlay.removeEventListener("mousemove", onPreMove);
       start = { x: ev.clientX, y: ev.clientY };
       overlay.addEventListener("mousemove", onMove);
       overlay.addEventListener("mouseup", onUp);
