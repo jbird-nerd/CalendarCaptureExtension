@@ -969,6 +969,28 @@
     // The button remains enabled for further changes.
   }
 
+  async function saveMethodSelections() {
+    const ocrMethod = document.querySelector('input[name="ocrMethod"]:checked')?.value;
+    const parseMethod = document.querySelector('input[name="parseMethod"]:checked')?.value;
+    const ocrRow = document.querySelector(`.provider-row input[value="${ocrMethod}"]`)?.closest('.provider-row');
+    const ocrModel = ocrRow?.querySelector('.model-select')?.value || '';
+    const parseRow = document.querySelector(`.provider-row input[value="${parseMethod}"]`)?.closest('.provider-row');
+    const parseModel = parseRow?.querySelector('.model-select')?.value || '';
+
+    await chrome.storage.sync.set({
+      ocrMethod,
+      parseMethod,
+      ocrModel,
+      parseModel,
+    });
+    log(`Saved method selections: OCR=${ocrMethod} (${ocrModel}), Parse=${parseMethod} (${parseModel})`);
+    const statusEl = $('methodSaveStatus');
+    if (statusEl) {
+      statusEl.textContent = '✅ Methods Saved!';
+      setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    }
+  }
+
   async function saveConfiguration() {
     // Validate all keys
     const keys = ['openai-key', 'gemini-key', 'claude-key', 'google-key'];
@@ -1122,7 +1144,7 @@
       });
     });
     $('check-files-btn')?.addEventListener('click', testLocalOCR);
-    // $('save-methods-btn')?.addEventListener('click', saveMethodSelections); // No longer needed
+
     $('download-files-btn')?.addEventListener('click', downloadTesseractBundle);
     $('ocr-image-dropzone')?.addEventListener('paste', handlePastedImage);
     $('clear-log-btn')?.addEventListener('click', () => {
