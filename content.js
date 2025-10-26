@@ -37,11 +37,11 @@
 
     // tiny helper bubble
     guide = document.createElement("div");
-    guide.textContent = "Drag to Capture; Release to End";
+    guide.textContent = "Drag to capture";
     Object.assign(guide.style, {
       position: "fixed",
-      left: "20px",
-      top: "20px",
+      left: "0",
+      top: "0",
       background: "rgba(0, 0, 0, 0.7)",
       color: "white",
       padding: "8px 12px",
@@ -94,7 +94,7 @@
         width: w + "px",
         height: h + "px"
       });
-      // Update guide position and text
+      // Update guide position
       guide.style.left = (ev.clientX + 20) + "px";
       guide.style.top = (ev.clientY + 20) + "px";
     };
