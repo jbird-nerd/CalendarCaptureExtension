@@ -1,116 +1,182 @@
-// modal.js
+/* modal.js — handles logic for the popup window */
 
-(function() {
-  const $ = (id) => document.getElementById(id);
+// --- DOM elements ------------------------------------------------------------
+const closeModalButton = document.getElementById('closeModal');
+const addToCalendarButton = document.getElementById('addToCalendar');
+const redrawButton = document.getElementById('redraw');
+const screenshotImg = document.getElementById('screenshot');
+const statusText = document.getElementById('statusText');
+const titleInput = document.getElementById('title');
+const startDateInput = document.getElementById('startDate');
+const startTimeInput = document.getElementById('startTime');
+const endDateInput = document.getElementById('endDate');
+const endTimeInput = document.getElementById('endTime');
+const descriptionInput = document.getElementById('description');
+const locationInput = document.getElementById('location');
 
-  function getQueryParam(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
+let imageDataUrl = null; // Store the initial image data URL
+
+// --- initial setup -----------------------------------------------------------
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await chrome.runtime.sendMessage({ type: 't2c.getScreenshot' });
+    if (response && response.imageDataUrl) {
+      imageDataUrl = response.imageDataUrl;
+      screenshotImg.src = imageDataUrl;
+      await processImageWithAI(imageDataUrl);
+    } else {
+      updateStatus('Error: No screenshot data received.', true);
+      console.error("No image data URL received from background script");
+    }
+  } catch (err) {
+    updateStatus('Error retrieving screenshot.', true);
+    console.error("Error getting screenshot from background:", err);
   }
+});
 
-  function setStatus(text, isError = false) {
-    const statusEl = $('status');
-    if(statusEl) {
-      statusEl.textContent = text;
-      statusEl.style.color = isError ? '#d93025' : '#1a73e8';
+// --- AI processing ----------------------------------------------------------
+async function processImageWithAI(dataUrl) {
+  try {
+    const settings = await chrome.storage.local.get(['ocrModel', 'parseModel', 'anthropicApiKey', 'openAiApiKey']);
+
+    if (!settings.ocrModel || !settings.parseModel) {
+      updateStatus('Error: OCR/Parse models not configured.', true);
+      return;
     }
+
+    // OCR Step
+    const ocrProvider = settings.ocrModel.startsWith('claude') ? 'Anthropic' : 'OpenAI';
+    updateStatus(`OCRing with ${ocrProvider} (${settings.ocrModel})...`);
+    const ocrResult = await chrome.runtime.sendMessage({
+      type: 't2c.callApi',
+      provider: 'ocr',
+      model: settings.ocrModel,
+      imageDataUrl: dataUrl
+    });
+
+    if (!ocrResult.ok || !ocrResult.data || !ocrResult.data.text) {
+      throw new Error(ocrResult.error || 'OCR process failed to extract text.');
+    }
+    const extractedText = ocrResult.data.text;
+    console.log("[T2C] OCR Result:", extractedText);
+
+    // Parse Step
+    const parseProvider = settings.parseModel.startsWith('claude') ? 'Anthropic' : 'OpenAI';
+    updateStatus(`Parsing with ${parseProvider} (${settings.parseModel})...`);
+    const parseResult = await chrome.runtime.sendMessage({
+      type: 't2c.callApi',
+      provider: 'parser',
+      model: settings.parseModel,
+      text: extractedText
+    });
+
+    if (!parseResult.ok || !parseResult.data) {
+      throw new Error(parseResult.error || 'Parsing process failed.');
+    }
+
+    updateStatus('AI processing complete.', false, 2000);
+    populateForm(parseResult.data);
+
+  } catch (err) {
+    console.error("[T2C] AI Processing Error:", err);
+    updateStatus(`Error: ${err.message}`, true);
   }
+}
 
-  function fillForm(details) {
-    if (!details) return;
-    $('title').value = details.title || '';
-    $('location').value = details.location || '';
-    if (details.start) {
-      const start = new Date(details.start);
-      $('start-date').value = start.toISOString().split('T')[0];
-      $('start-time').value = start.toTimeString().split(' ')[0].substring(0, 5);
-    }
-    if (details.end) {
-      const end = new Date(details.end);
-      $('end-date').value = end.toISOString().split('T')[0];
-      $('end-time').value = end.toTimeString().split(' ')[0].substring(0, 5);
-    }
+// --- form & UI helpers -------------------------------------------------------
+function updateStatus(message, isError = false, clearAfter = 0) {
+  statusText.textContent = message;
+  statusText.className = isError ? 'status-text status-error' : 'status-text status-active';
+
+  if (clearAfter > 0) {
+    setTimeout(() => {
+      statusText.textContent = 'Please review the event details below.';
+      statusText.className = 'status-text';
+    }, clearAfter);
   }
+}
 
-  async function performOcrAndParse(imageDataUrl) {
-    try {
-      setStatus('Reading text from image...');
-      const ocrResponse = await chrome.runtime.sendMessage({
-        type: 'PERFORM_OCR',
-        dataUrl: imageDataUrl,
-      });
+function populateForm(data) {
+  console.log("[T2C] Populating form with:", data);
+  titleInput.value = data.title || '';
+  descriptionInput.value = data.description || '';
+  locationInput.value = data.location || '';
 
-      if (!ocrResponse.ok) {
-        throw new Error(`OCR failed: ${ocrResponse.error}`);
-      }
-      setStatus(`Parsing text with ${ocrResponse.debug.provider}...`);
+  try {
+    // Attempt to parse dates and times
+    const startDateTime = data.start_time ? new Date(data.start_time) : null;
+    const endDateTime = data.end_time ? new Date(data.end_time) : null;
 
-      const parseResponse = await chrome.runtime.sendMessage({
-        type: 'PERFORM_PARSE',
-        text: ocrResponse.text,
-      });
-
-      if (!parseResponse.ok) {
-        throw new Error(`Parsing failed: ${parseResponse.error}`);
-      }
-      setStatus('Successfully parsed event details.');
-      fillForm(parseResponse.result);
-      // On successful parse, make the "Add to Calendar" button blue
-      $('add-to-calendar').classList.add('primary', 'btn-pulse');
-    } catch (error) {
-      setStatus(error.message, true);
+    if (startDateTime && !isNaN(startDateTime)) {
+      startDateInput.value = startDateTime.toISOString().split('T')[0];
+      startTimeInput.value = startDateTime.toTimeString().substring(0, 5);
+    } else {
+      startDateInput.value = '';
+      startTimeInput.value = '';
     }
+
+    if (endDateTime && !isNaN(endDateTime)) {
+      endDateInput.value = endDateTime.toISOString().split('T')[0];
+      endTimeInput.value = endDateTime.toTimeString().substring(0, 5);
+    } else {
+      endDateInput.value = '';
+      endTimeInput.value = '';
+    }
+  } catch (e) {
+      console.error("Error parsing date/time data:", e);
+      updateStatus('Error populating date/time fields.', true);
+      // Clear fields on error
+      startDateInput.value = '';
+      startTimeInput.value = '';
+      endDateInput.value = '';
+      endTimeInput.value = '';
   }
+}
 
-  function constructGoogleCalendarUrl() {
-    const title = encodeURIComponent($('title').value);
-    const location = encodeURIComponent($('location').value);
+// --- event listeners ---------------------------------------------------------
+closeModalButton.addEventListener('click', () => {
+  window.close();
+});
 
-    const startDate = $('start-date').value;
-    const startTime = $('start-time').value || '00:00';
-    const endDate = $('end-date').value;
-    const endTime = $('end-time').value || '00:00';
-
-    if (!startDate || !endDate) {
-        setStatus('Start and End dates are required.', true);
-        return null;
-    }
-
-    const startDateTime = `${startDate.replace(/-/g, '')}T${startTime.replace(/:/g, '')}00`;
-    const endDateTime = `${endDate.replace(/-/g, '')}T${endTime.replace(/:/g, '')}00`;
-
-    const dates = `${startDateTime}/${endDateTime}`;
-
-    return `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&location=${location}`;
+redrawButton.addEventListener('click', async () => {
+  try {
+    await chrome.runtime.sendMessage({ type: 't2c.redrawCapture' });
+    window.close();
+  } catch (err) {
+    console.error("Error signaling redraw:", err);
   }
+});
 
-  // Listen for the image data from the background script
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === 'POPUP_PROCESS_IMAGE') {
-      performOcrAndParse(message.imageDataUrl);
-    }
-  });
+addToCalendarButton.addEventListener('click', async () => {
+  const startDateTime = `${startDateInput.value}T${startTimeInput.value}`;
+  const endDateTime = `${endDateInput.value}T${endTimeInput.value}`;
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Signal to the background script that the popup is ready to receive data
-    chrome.runtime.sendMessage({ type: 'POPUP_READY' });
+  const eventData = {
+    title: titleInput.value,
+    startDate: startDateTime,
+    endDate: endDateTime,
+    description: descriptionInput.value,
+    location: locationInput.value,
+  };
 
-    $('add-to-calendar').addEventListener('click', () => {
-      const url = constructGoogleCalendarUrl();
-      if (url) {
-        chrome.tabs.create({ url });
+  try {
+    const response = await chrome.runtime.sendMessage({ type: 't2c.createGoogleEvent', eventData });
+    if (response.ok) {
+      updateStatus('Event created successfully!', false);
+      addToCalendarButton.classList.add('success');
+      addToCalendarButton.textContent = 'Added to Calendar!';
+
+      // Auto-close after a short delay
+      setTimeout(() => {
         window.close();
-      }
-    });
+      }, 1500);
 
-    $('re-capture-btn').addEventListener('click', () => {
-      chrome.runtime.sendMessage({ type: 'START_CAPTURE' });
-      window.close();
-    });
-
-    $('exit-btn').addEventListener('click', () => {
-      window.close();
-    });
-  });
-
-})();
+    } else {
+      throw new Error(response.error || 'Unknown error creating event.');
+    }
+  } catch (err) {
+    console.error("Error creating Google Calendar event:", err);
+    updateStatus(`Error: ${err.message}`, true);
+    addToCalendarButton.classList.remove('success'); // Ensure success style is removed on error
+  }
+});
