@@ -1,0 +1,52 @@
+{
+  "hash": "bba20a2c",
+  "configHash": "d628f76f",
+  "lockfileHash": "1422dc6d",
+  "browserHash": "ee45b077",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "6352f1c6",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "43cda2ec",
+      "needsInterop": true
+    },
+    "react-leaflet": {
+      "src": "../../node_modules/react-leaflet/lib/index.js",
+      "file": "react-leaflet.js",
+      "fileHash": "97c9b5ee",
+      "needsInterop": false
+    },
+    "leaflet": {
+      "src": "../../node_modules/leaflet/dist/leaflet-src.js",
+      "file": "leaflet.js",
+      "fileHash": "d2420a30",
+      "needsInterop": true
+    },
+    "openrouteservice-js": {
+      "src": "../../node_modules/openrouteservice-js/dist/ors-js-client.js",
+      "file": "openrouteservice-js.js",
+      "fileHash": "52cef45c",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-7BTQE24S": {
+      "file": "chunk-7BTQE24S.js"
+    },
+    "chunk-UNLUE3XC": {
+      "file": "chunk-UNLUE3XC.js"
+    },
+    "chunk-IW2PTZK5": {
+      "file": "chunk-IW2PTZK5.js"
+    },
+    "chunk-5WRI5ZAA": {
+      "file": "chunk-5WRI5ZAA.js"
+    }
+  }
+}

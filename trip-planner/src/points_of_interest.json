@@ -1,0 +1,702 @@
+[
+  {
+    "name": "Albany Bulb",
+    "category": "Odd",
+    "city": "Albany",
+    "state": "CA",
+    "description": "A former landfill on the east shore of the San Francisco Bay, which has been transformed into a public park filled with a vast and ever-changing collection of sculptures and street art."
+  },
+  {
+    "name": "Heinold's First and Last Chance Saloon",
+    "category": "History",
+    "city": "Oakland",
+    "state": "CA",
+    "description": "A historic waterfront bar opened in 1883, built from the timbers of an old whaling ship. It was a favorite haunt of author Jack London."
+  },
+  {
+    "name": "Black Chasm Cavern",
+    "category": "Scenic",
+    "city": "Volcano",
+    "state": "CA",
+    "description": "A National Natural Landmark, this cave is famous for its rare helictite formations, which grow in strange, gravity-defying directions."
+  },
+  {
+    "name": "Indian Grinding Rock State Historic Park",
+    "category": "History",
+    "city": "Pine Grove",
+    "state": "CA",
+    "description": "Preserves a great outcropping of marbleized limestone with some 1,185 mortar holes (chaw'se), the largest collection of bedrock mortars in North America."
+  },
+  {
+    "name": "Moaning Cavern",
+    "category": "Odd",
+    "city": "Vallecito",
+    "state": "CA",
+    "description": "A vertical cave chamber so large it could hold the Statue of Liberty. Visitors can descend via a spiral staircase or rappel 165 feet to the bottom."
+  },
+  {
+    "name": "Forestiere Underground Gardens",
+    "category": "Odd",
+    "city": "Fresno",
+    "state": "CA",
+    "description": "A hand-built network of underground rooms, courtyards and passageways reminiscent of the ancient catacombs. Created by Baldassare Forestiere over 40 years."
+  },
+  {
+    "name": "Trees of Mystery",
+    "category": "Odd",
+    "city": "Klamath",
+    "state": "CA",
+    "description": "A classic roadside park featuring a giant 49-foot statue of Paul Bunyan and his 35-foot ox, Babe, plus a trail of unusual tree formations and a gondola ride through the redwood canopy."
+  },
+  {
+    "name": "Chandelier Drive-Thru Tree",
+    "category": "Scenic",
+    "city": "Leggett",
+    "state": "CA",
+    "description": "A 276-foot tall coast redwood tree with a 6-foot wide by 6-foot-9-inch high tunnel carved through its base, allowing cars to drive through."
+  },
+  {
+    "name": "Glass Beach",
+    "category": "Scenic",
+    "city": "Fort Bragg",
+    "state": "CA",
+    "description": "A unique beach famous for its shores being covered in smooth, colorful sea glass, which was created over decades from garbage dumped into the ocean."
+  },
+  {
+    "name": "Winchester Mystery House",
+    "category": "Odd",
+    "city": "San Jose",
+    "state": "CA",
+    "description": "A sprawling and bizarre mansion built by Sarah Winchester, heiress to the Winchester rifle fortune. Famed for its architectural curiosities, like staircases that lead to ceilings and doors that open to nowhere."
+  },
+  {
+    "name": "Goldwell Open Air Museum",
+    "category": "Odd",
+    "city": "Rhyolite",
+    "state": "NV",
+    "description": "An outdoor sculpture park near the ghost town of Rhyolite, featuring ghostly, life-sized plaster figures and other large-scale, desert-themed artworks."
+  },
+  {
+    "name": "International Car Forest of the Last Church",
+    "category": "Odd",
+    "city": "Goldfield",
+    "state": "NV",
+    "description": "A bizarre art installation where over 40 cars, trucks, and buses are planted nose-down in the desert, creating a unique and colorful 'forest'."
+  },
+  {
+    "name": "Republic of Molossia",
+    "category": "Odd",
+    "city": "Dayton",
+    "state": "NV",
+    "description": "A playful micronation and self-proclaimed sovereign country located in Northern Nevada, complete with its own currency, laws, and 'dictator'."
+  },
+  {
+    "name": "Seven Magic Mountains",
+    "category": "Scenic",
+    "city": "Jean",
+    "state": "NV",
+    "description": "A large-scale public art installation featuring seven towers of colorful, stacked boulders standing over 30 feet high in the Mojave Desert."
+  },
+  {
+    "name": "Extraterrestrial Highway",
+    "category": "Odd",
+    "city": "Alamo to Tonopah",
+    "state": "NV",
+    "description": "State Route 375, a lonely stretch of road famous for its proximity to Area 51 and numerous reports of UFO sightings."
+  },
+  {
+    "name": "The Clown Motel",
+    "category": "Odd",
+    "city": "Tonopah",
+    "state": "NV",
+    "description": "A motel famously themed entirely around clowns, featuring thousands of clown dolls, figurines, and pictures. It is located next to a historic cemetery."
+  },
+  {
+    "name": "Berlin-Ichthyosaur State Park",
+    "category": "History",
+    "city": "Austin",
+    "state": "NV",
+    "description": "A unique park that preserves the 1890s ghost town of Berlin and the world's most abundant concentration of giant ichthyosaur fossils."
+  },
+  {
+    "name": "Fly Geyser",
+    "category": "Scenic",
+    "city": "Gerlach",
+    "state": "NV",
+    "description": "A stunning, multi-colored geothermal geyser created by accident from a well drilled in the 1960s. Minerals and algae give it a surreal, alien-like appearance."
+  },
+  {
+    "name": "The National Atomic Testing Museum",
+    "category": "History",
+    "city": "Las Vegas",
+    "state": "NV",
+    "description": "A museum that chronicles the history of the Nevada Test Site and the development of nuclear weapons. It's an affiliate of the Smithsonian Institution."
+  },
+  {
+    "name": "Middlegate Shoe Tree",
+    "category": "Odd",
+    "city": "Middlegate",
+    "state": "NV",
+    "description": "A large cottonwood tree on a lonely stretch of U.S. Route 50 that is covered in hundreds of pairs of shoes thrown into its branches by passersby."
+  },
+  {
+    "name": "Spiral Jetty",
+    "category": "Odd",
+    "city": "Great Salt Lake",
+    "state": "UT",
+    "description": "A massive earthwork sculpture by Robert Smithson, a 1,500-foot-long spiral of black basalt rocks jutting into the Great Salt Lake."
+  },
+  {
+    "name": "Hole N' The Rock",
+    "category": "Odd",
+    "city": "Moab",
+    "state": "UT",
+    "description": "A unique 5,000 square foot home carved out of a massive rock in Utah's Canyonlands Country. It includes a trading post and a small zoo."
+  },
+  {
+    "name": "The 'Up' House",
+    "category": "Odd",
+    "city": "Herriman",
+    "state": "UT",
+    "description": "A real-life, exact replica of the colorful house from the Disney/Pixar movie 'Up', complete with the vibrant paint scheme and custom weather vane."
+  },
+  {
+    "name": "Tree of Utah",
+    "category": "Scenic",
+    "city": "Bonneville Salt Flats",
+    "state": "UT",
+    "description": "An 87-foot-tall sculpture of a tree made of concrete, rock, and other minerals, created by Swedish artist Karl Momen in the middle of the stark Salt Flats."
+  },
+  {
+    "name": "Fantasy Canyon",
+    "category": "Scenic",
+    "city": "Vernal",
+    "state": "UT",
+    "description": "A small but spectacular area of otherworldly rock formations, eroded into fantastical shapes that resemble gargoyles, witches, and animals."
+  },
+  {
+    "name": "Gilgal Sculpture Garden",
+    "category": "Odd",
+    "city": "Salt Lake City",
+    "state": "UT",
+    "description": "A small, hidden public park filled with eccentric and symbolic sculptures, including a sphinx with the head of Joseph Smith."
+  },
+  {
+    "name": "Thistle Ghost Town",
+    "category": "History",
+    "city": "Thistle",
+    "state": "UT",
+    "description": "An eerie, semi-submerged ghost town that was abandoned after a massive landslide in 1983 dammed the Spanish Fork River and flooded the community."
+  },
+  {
+    "name": "Kanab's Little Hollywood Museum",
+    "category": "History",
+    "city": "Kanab",
+    "state": "UT",
+    "description": "A museum showcasing the film history of Kanab, which served as a filming location for over 100 Western movies. Features original movie sets."
+  },
+  {
+    "name": "Mystic Hot Springs",
+    "category": "Scenic",
+    "city": "Monroe",
+    "state": "UT",
+    "description": "Natural hot springs that have been channeled into vintage bathtubs and two larger pools, offering a quirky and rustic soaking experience."
+  },
+  {
+    "name": "Newspaper Rock State Historic Monument",
+    "category": "History",
+    "city": "Monticello",
+    "state": "UT",
+    "description": "A large rock panel with one of the largest known collections of petroglyphs, with carvings from at least three distinct Native American cultures."
+  },
+  {
+    "name": "The World's Largest Jackalope Exhibit",
+    "category": "Odd",
+    "city": "Douglas",
+    "state": "WY",
+    "description": "As the 'Jackalope Capital of the World,' Douglas features numerous statues and references to the mythical horned rabbit, a classic piece of American folklore."
+  },
+  {
+    "name": "Hot Springs State Park",
+    "category": "Scenic",
+    "city": "Thermopolis",
+    "state": "WY",
+    "description": "Famous for its large, colorful mineral terraces, a free public bathhouse for soaking, and a herd of bison that roams the park."
+  },
+  {
+    "name": "Wyoming Frontier Prison",
+    "category": "History",
+    "city": "Rawlins",
+    "state": "WY",
+    "description": "The old state penitentiary, which operated from 1901 to 1981. Now a museum offering tours of the cell blocks, gas chamber, and supposedly haunted grounds."
+  },
+  {
+    "name": "Ames Monument",
+    "category": "Odd",
+    "city": "Buford",
+    "state": "WY",
+    "description": "A large, 60-foot high granite pyramid located in the middle of the prairie, built to honor the financiers of the Union Pacific Railroad."
+  },
+  {
+    "name": "The Virginian Hotel",
+    "category": "History",
+    "city": "Medicine Bow",
+    "state": "WY",
+    "description": "A historic hotel built in 1911 and named after the famous novel by Owen Wister. It's a landmark of the Old West."
+  },
+  {
+    "name": "Smith Mansion",
+    "category": "Odd",
+    "city": "Wapiti",
+    "state": "WY",
+    "description": "A towering, unfinished log home built single-handedly by engineer and artist Lee Smith. It's a bizarre and fascinating example of outsider architecture."
+  },
+  {
+    "name": "Shell Gas Station",
+    "category": "History",
+    "city": "Shell",
+    "state": "WY",
+    "description": "A perfectly preserved 1920s-era gas station, looking like a small cottage with a red roof. It's a picturesque piece of roadside history."
+  },
+  {
+    "name": "Intermittent Spring",
+    "category": "Scenic",
+    "city": "Afton",
+    "state": "WY",
+    "description": "The largest naturally occurring periodic spring in the world. The water flows for about 15 minutes, then stops for 15-20 minutes in a predictable cycle."
+  },
+  {
+    "name": "Boar's Tusk",
+    "category": "Scenic",
+    "city": "Rock Springs",
+    "state": "WY",
+    "description": "The remnant core of an ancient volcano that rises 400 feet above the desert floor, creating a dramatic and isolated landmark."
+  },
+  {
+    "name": "Big Nose George's Shoes",
+    "category": "Odd",
+    "city": "Rawlins",
+    "state": "WY",
+    "description": "A pair of shoes made from the skin of notorious outlaw Big Nose George Parrott after his lynching. They are on display at the Carbon County Museum."
+  },
+  {
+    "name": "Wall Drug Store",
+    "category": "Odd",
+    "city": "Wall",
+    "state": "SD",
+    "description": "A world-famous roadside attraction that started by offering free ice water. Now a massive complex with shops, restaurants, and quirky photo-ops, including an 80-foot brontosaurus."
+  },
+  {
+    "name": "The Corn Palace",
+    "category": "Odd",
+    "city": "Mitchell",
+    "state": "SD",
+    "description": "A unique multipurpose arena and tourist attraction, where the exterior is completely covered in murals and designs made from corn and other local grains."
+  },
+  {
+    "name": "Cosmos Mystery Area",
+    "category": "Odd",
+    "city": "Rapid City",
+    "state": "SD",
+    "description": "A classic 'gravity spot' where the laws of nature seem to be turned upside down. Balls roll uphill and people appear to change height."
+  },
+  {
+    "name": "Dignity of Earth and Sky",
+    "category": "Scenic",
+    "city": "Chamberlain",
+    "state": "SD",
+    "description": "A colossal 50-foot-tall stainless steel statue of a Native American woman overlooking the Missouri River, honoring the Lakota and Dakota people."
+  },
+  {
+    "name": "1880 Town",
+    "category": "History",
+    "city": "Murdo",
+    "state": "SD",
+    "description": "An authentic 1880s town with over 30 original buildings relocated from across the state, filled with thousands of artifacts and props from the movie 'Dances with Wolves'."
+  },
+  {
+    "name": "Petrified Wood Park & Museum",
+    "category": "Odd",
+    "city": "Lemmon",
+    "state": "SD",
+    "description": "A park built between 1930 and 1932, featuring a castle, wishing well, and other structures made entirely of petrified wood, fossils, and cannonball concretions."
+  },
+  {
+    "name": "Porter Sculpture Park",
+    "category": "Odd",
+    "city": "Montrose",
+    "state": "SD",
+    "description": "A surreal park located in a prairie field, filled with over 50 large, bizarre sculptures made from scrap metal, including a 60-foot-tall bull's head."
+  },
+  {
+    "name": "Minuteman Missile National Historic Site",
+    "category": "History",
+    "city": "Philip",
+    "state": "SD",
+    "description": "A preserved Minuteman II intercontinental ballistic missile silo and launch control facility, offering a chilling look into the Cold War."
+  },
+  {
+    "name": "Dinosaur Park",
+    "category": "Odd",
+    "city": "Rapid City",
+    "state": "SD",
+    "description": "A hilltop park featuring seven giant, vintage concrete dinosaur sculptures built in the 1930s, offering panoramic views of the city."
+  },
+  {
+    "name": "Reptile Gardens",
+    "category": "Odd",
+    "city": "Rapid City",
+    "state": "SD",
+    "description": "A large animal park holding the Guinness World Record for the largest collection of reptile species. Features giant tortoises, gator shows, and a botanical garden."
+  },
+  {
+    "name": "Largest Ball of Twine",
+    "category": "Odd",
+    "city": "Darwin",
+    "state": "MN",
+    "description": "The world's largest ball of sisal twine built by one man, Francis A. Johnson. It weighs 17,400 pounds and is 12 feet in diameter."
+  },
+  {
+    "name": "SPAM Museum",
+    "category": "Odd",
+    "city": "Austin",
+    "state": "MN",
+    "description": "A museum dedicated to the history and cultural significance of SPAM, the canned meat product. Features interactive exhibits and a gift shop."
+  },
+  {
+    "name": "Paul Bunyan and Babe the Blue Ox",
+    "category": "Odd",
+    "city": "Bemidji",
+    "state": "MN",
+    "description": "Iconic, giant statues of the legendary lumberjack and his companion, located on the shore of Lake Bemidji. A classic American roadside photo op."
+  },
+  {
+    "name": "Franconia Sculpture Park",
+    "category": "Scenic",
+    "city": "Shafer",
+    "state": "MN",
+    "description": "A 43-acre outdoor sculpture park with a constantly changing collection of over 120 contemporary sculptures from artists around the world."
+  },
+  {
+    "name": "Devil's Kettle",
+    "category": "Scenic",
+    "city": "Grand Marais",
+    "state": "MN",
+    "description": "A mysterious waterfall in Judge C. R. Magney State Park where the Brule River splits, with one side plunging into a pothole and seemingly disappearing."
+  },
+  {
+    "name": "Wabasha Street Caves",
+    "category": "History",
+    "city": "Saint Paul",
+    "state": "MN",
+    "description": "Man-made sandstone caves that were once a speakeasy and gangster hideout. Now a venue for tours and swing dancing nights."
+  },
+  {
+    "name": "Kensington Runestone Museum",
+    "category": "History",
+    "city": "Alexandria",
+    "state": "MN",
+    "description": "Home to the controversial Kensington Runestone, a 200-pound slab of rock that, if authentic, suggests Vikings were in Minnesota in the 14th century."
+  },
+  {
+    "name": "Split Rock Lighthouse",
+    "category": "Scenic",
+    "city": "Two Harbors",
+    "state": "MN",
+    "description": "A beautifully restored 1910 lighthouse perched dramatically on a cliff overlooking Lake Superior. A National Historic Landmark."
+  },
+  {
+    "name": "Iona's Beach (Singing Stones)",
+    "category": "Scenic",
+    "city": "Two Harbors",
+    "state": "MN",
+    "description": "A unique beach made of pink rhyolite stones that 'sing' or tinkle as the waves of Lake Superior wash over them."
+  },
+  {
+    "name": "The Jolly Green Giant Statue",
+    "category": "Odd",
+    "city": "Blue Earth",
+    "state": "MN",
+    "description": "A 55.5-foot-tall statue of the Jolly Green Giant, the advertising mascot for Green Giant vegetables, which has its roots in a local canning company."
+  },
+  {
+    "name": "House on the Rock",
+    "category": "Odd",
+    "city": "Spring Green",
+    "state": "WI",
+    "description": "An immense and bizarre architectural complex featuring a house built on a rock, the world's largest carousel, and eclectic collections of everything imaginable."
+  },
+  {
+    "name": "Dr. Evermor's Forevertron",
+    "category": "Odd",
+    "city": "Sumpter",
+    "state": "WI",
+    "description": "The world's largest scrap metal sculpture, a massive, whimsical creation built by artist Tom Every (Dr. Evermor) behind his salvage yard."
+  },
+  {
+    "name": "National Mustard Museum",
+    "category": "Odd",
+    "city": "Middleton",
+    "state": "WI",
+    "description": "A museum dedicated entirely to mustard, featuring more than 5,600 varieties from all 50 states and over 70 countries, with a tasting bar."
+  },
+  {
+    "name": "The World's Largest Six-Pack",
+    "category": "Odd",
+    "city": "La Crosse",
+    "state": "WI",
+    "description": "Giant, retired beer storage tanks painted to look like a six-pack of Heileman's Old Style lager. A tribute to the city's brewing history."
+  },
+  {
+    "name": "Fresh Water Fishing Hall of Fame",
+    "category": "Odd",
+    "city": "Hayward",
+    "state": "WI",
+    "description": "A museum dedicated to freshwater fishing, featuring a giant, four-story-high fiberglass muskie that visitors can walk inside."
+  },
+  {
+    "name": "Jurustic Park",
+    "category": "Odd",
+    "city": "Marshfield",
+    "state": "WI",
+    "description": "A sculpture park filled with whimsical dinosaurs and other creatures made from rusted metal and found objects by artist Clyde Wynia."
+  },
+  {
+    "name": "Mars Cheese Castle",
+    "category": "Diners",
+    "city": "Kenosha",
+    "state": "WI",
+    "description": "A landmark cheese shop and deli built to look like a castle, offering a huge selection of Wisconsin cheeses, sausages, and other local products."
+  },
+  {
+    "name": "The SafeHouse",
+    "category": "Diners",
+    "city": "Milwaukee",
+    "state": "WI",
+    "description": "A spy-themed restaurant and bar that requires a password to enter. Full of secret passages, hidden doors, and spy memorabilia."
+  },
+  {
+    "name": "The Dells Mill and Museum",
+    "category": "History",
+    "city": "Augusta",
+    "state": "WI",
+    "description": "A picturesque, five-story grist mill built in 1864, now a museum filled with a fascinating collection of antiques and historical artifacts."
+  },
+  {
+    "name": "Cave of the Mounds",
+    "category": "Scenic",
+    "city": "Blue Mounds",
+    "state": "WI",
+    "description": "A National Natural Landmark, this stunning limestone cave is filled with colorful crystal formations. Often called 'the jewel box of caves'."
+  },
+  {
+    "name": "The Mystery Spot",
+    "category": "Odd",
+    "city": "St. Ignace",
+    "state": "MI",
+    "description": "A classic 'gravity spot' where optical illusions and strange physical sensations create a fun and disorienting experience."
+  },
+  {
+    "name": "Da Yoopers Tourist Trap",
+    "category": "Odd",
+    "city": "Ishpeming",
+    "state": "MI",
+    "description": "A quirky and humorous tourist trap celebrating Upper Peninsula culture, featuring bizarre inventions, a rock shop, and giant, humorous statues."
+  },
+  {
+    "name": "Lakenenland Sculpture Park",
+    "category": "Odd",
+    "city": "Marquette",
+    "state": "MI",
+    "description": "A free sculpture park featuring over 100 whimsical and political sculptures made from scrap iron by artist Tom Lakenen."
+  },
+  {
+    "name": "Kitch-iti-kipi (The Big Spring)",
+    "category": "Scenic",
+    "city": "Manistique",
+    "state": "MI",
+    "description": "Michigan's largest freshwater spring. Visitors can take a self-propelled raft to view the crystal-clear, bubbling spring from above."
+  },
+  {
+    "name": "Bishop Baraga's Snowshoe Shrine",
+    "category": "Odd",
+    "city": "L'Anse",
+    "state": "MI",
+    "description": "A six-story-high brass statue of Bishop Baraga holding a cross and a pair of snowshoes, commemorating the 'Snowshoe Priest'."
+  },
+  {
+    "name": "The Paulding Light",
+    "category": "Odd",
+    "city": "Paulding",
+    "state": "MI",
+    "description": "A mysterious, unexplained light that appears in a valley outside of Paulding nearly every night. A popular local legend."
+  },
+  {
+    "name": "Quincy Mine",
+    "category": "History",
+    "city": "Hancock",
+    "state": "MI",
+    "description": "A former copper mine offering underground tours that take you deep into the earth to see what mining life was like in the Keweenaw Peninsula."
+  },
+  {
+    "name": "Fayette Historic State Park",
+    "category": "History",
+    "city": "Garden",
+    "state": "MI",
+    "description": "A well-preserved ghost town that was once a bustling iron smelting community. Features over 20 historic buildings and beautiful harbor views."
+  },
+  {
+    "name": "Pictured Rocks National Lakeshore",
+    "category": "Scenic",
+    "city": "Munising",
+    "state": "MI",
+    "description": "A stunning stretch of shoreline on Lake Superior known for its colorful sandstone cliffs, waterfalls, and unique rock formations."
+  },
+  {
+    "name": "Mackinac Island",
+    "category": "History",
+    "city": "Mackinac Island",
+    "state": "MI",
+    "description": "A unique island where cars are banned. Known for its fudge shops, historic fort, and Victorian architecture. A step back in time."
+  },
+  {
+    "name": "Eternal Flame Falls",
+    "category": "Scenic",
+    "city": "Orchard Park",
+    "state": "NY",
+    "description": "A small waterfall in Chestnut Ridge Park that shelters a natural gas spring, which can be lit to produce a small, continuous flame."
+  },
+  {
+    "name": "The Jell-O Gallery Museum",
+    "category": "Odd",
+    "city": "Le Roy",
+    "state": "NY",
+    "description": "A museum dedicated to the history of Jell-O, which was invented in Le Roy. Features exhibits on Jell-O advertising, molds, and memorabilia."
+  },
+  {
+    "name": "Niagara Falls",
+    "category": "Scenic",
+    "city": "Niagara Falls",
+    "state": "NY",
+    "description": "Three massive waterfalls at the southern end of Niagara Gorge, spanning the border between the United States and Canada. A world-famous natural wonder."
+  },
+  {
+    "name": "Boldt Castle",
+    "category": "History",
+    "city": "Alexandria Bay",
+    "state": "NY",
+    "description": "A magnificent, unfinished castle built on Heart Island in the Thousand Islands. A tragic love story and a beautiful example of Gilded Age architecture."
+  },
+  {
+    "name": "The World's Smallest Church",
+    "category": "Odd",
+    "city": "Oneida",
+    "state": "NY",
+    "description": "The Cross Island Chapel, a tiny church built on a wooden platform in the middle of a pond, with seating for just two people."
+  },
+  {
+    "name": "Corning Museum of Glass",
+    "category": "Art",
+    "city": "Corning",
+    "state": "NY",
+    "description": "A world-renowned museum showcasing 3,500 years of glass art and history. Features live glassblowing demonstrations and hands-on workshops."
+  },
+  {
+    "name": "Letchworth State Park",
+    "category": "Scenic",
+    "city": "Castile",
+    "state": "NY",
+    "description": "Known as the 'Grand Canyon of the East,' this park features three large waterfalls on the Genesee River and lush forests."
+  },
+  {
+    "name": "The 'Scary Lucy' Statue",
+    "category": "Odd",
+    "city": "Celoron",
+    "state": "NY",
+    "description": "An infamous and widely mocked bronze statue of Lucille Ball that was so unflattering it was replaced. The original remains as a quirky photo op."
+  },
+  {
+    "name": "Griffis Sculpture Park",
+    "category": "Art",
+    "city": "East Otto",
+    "state": "NY",
+    "description": "One of the oldest and largest outdoor sculpture parks in the country, with over 250 large-scale sculptures set in a beautiful natural landscape."
+  },
+  {
+    "name": "The Big Duck",
+    "category": "Odd",
+    "city": "Flanders",
+    "state": "NY",
+    "description": "A ferrocement building in the shape of a Pekin duck, built in 1931 as a shop to sell ducks and duck eggs. A landmark of novelty architecture."
+  },
+  {
+    "name": "Mount Washington",
+    "category": "Scenic",
+    "city": "Mount Washington",
+    "state": "NH",
+    "description": "The highest peak in the Northeastern United States, famous for its extreme weather. Can be ascended by car, cog railway, or hiking."
+  },
+  {
+    "name": "America's Stonehenge",
+    "category": "Odd",
+    "city": "Salem",
+    "state": "NH",
+    "description": "A mysterious archaeological site of man-made rock formations, including chambers, walls, and standing stones, with debated origins."
+  },
+  {
+    "name": "Clark's Trading Post",
+    "category": "Odd",
+    "city": "Lincoln",
+    "state": "NH",
+    "description": "A classic family-friendly roadside attraction featuring trained bear shows, a steam-powered train ride, and a variety of museums."
+  },
+  {
+    "name": "Madame Sherri's Castle Ruins",
+    "category": "History",
+    "city": "Chesterfield",
+    "state": "NH",
+    "description": "The dramatic stone ruins of a flamboyant costume designer's 1930s 'castle,' which burned down in 1962, leaving behind a grand stone staircase."
+  },
+  {
+    "name": "U.S.S. Albacore Museum",
+    "category": "History",
+    "city": "Portsmouth",
+    "state": "NH",
+    "description": "A museum centered on the USS Albacore, a unique, tear-drop hulled research submarine that was a prototype for modern submarine design."
+  },
+  {
+    "name": "The Flume Gorge",
+    "category": "Scenic",
+    "city": "Lincoln",
+    "state": "NH",
+    "description": "A spectacular natural gorge with towering granite walls. A 2-mile loop trail includes a boardwalk through the gorge."
+  },
+  {
+    "name": "Lost River Gorge & Boulder Caves",
+    "category": "Scenic",
+    "city": "North Woodstock",
+    "state": "NH",
+    "description": "A network of boulder caves and a narrow gorge connected by a boardwalk. Visitors can follow the river and climb through the caves."
+  },
+  {
+    "name": "Franconia Notch State Park",
+    "category": "Scenic",
+    "city": "Franconia",
+    "state": "NH",
+    "description": "A stunning mountain pass with a parkway that winds between the Kinsman and Franconia mountain ranges. Home to many attractions."
+  },
+  {
+    "name": "The Old Man of the Mountain Profile Plaza",
+    "category": "History",
+    "city": "Franconia",
+    "state": "NH",
+    "description": "A memorial to New Hampshire's iconic rock formation that collapsed in 2003. Profilers allow visitors to see how the 'Old Man' once looked."
+  },
+  {
+    "name": "The Mount Washington Cog Railway",
+    "category": "History",
+    "city": "Mount Washington",
+    "state": "NH",
+    "description": "The world's first mountain-climbing cog railway, offering a historic and scenic 3-hour round trip to the summit of Mount Washington."
+  }
+]
