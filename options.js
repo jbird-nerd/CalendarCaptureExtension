@@ -67,10 +67,7 @@
 
   // --- Update helper text for OCR and Parse sections ---
   function updateHelperText() {
-    // Count how many keys are valid
     const validKeyCount = Object.values(keyValidationStatus).filter(v => v).length;
-
-    // Update OCR helper text
     const ocrHelper = $('ocr-helper-text');
     const parseHelper = $('parse-helper-text');
 
@@ -80,38 +77,38 @@
       return;
     }
 
-    // Check OCR section
+    // Helper for OCR section
     if (ocrHelper) {
-      const enabledOcrRows = document.querySelectorAll('#ocr-method-options .provider-row:not(.disabled)');
-      const unpopulatedOcr = Array.from(enabledOcrRows).some(row => {
-        const select = row.querySelector('.model-select');
-        return select && select.options.length <= 1; // Only has placeholder
-      });
+      const enabledRows = document.querySelectorAll('#ocr-method-options .provider-row:not(.disabled)');
+      const unpopulated = Array.from(enabledRows).some(row => row.querySelector('.model-select')?.options.length <= 1);
 
-      if (unpopulatedOcr) {
-        ocrHelper.textContent = 'Click Load Models to load available models';
-      } else if (enabledOcrRows.length > 1) {
-        ocrHelper.textContent = 'Select provider, then select model from dropdown';
-      } else {
-        ocrHelper.textContent = 'Select model from dropdown';
+      let text = '';
+      if (enabledRows.length > 1) {
+        text += 'Choose a provider';
       }
+      if (unpopulated) {
+        text += (text ? ', then ' : '') + 'click Load Models';
+      } else {
+        text += (text ? ' and ' : '') + 'choose a model';
+      }
+      ocrHelper.textContent = text;
     }
 
-    // Check Parse section
+    // Helper for Parse section
     if (parseHelper) {
-      const enabledParseRows = document.querySelectorAll('#parse-method-options .provider-row:not(.disabled)');
-      const unpopulatedParse = Array.from(enabledParseRows).some(row => {
-        const select = row.querySelector('.model-select');
-        return select && select.options.length <= 1; // Only has placeholder
-      });
+      const enabledRows = document.querySelectorAll('#parse-method-options .provider-row:not(.disabled)');
+      const unpopulated = Array.from(enabledRows).some(row => row.querySelector('.model-select')?.options.length <= 1);
 
-      if (unpopulatedParse) {
-        parseHelper.textContent = 'Click Load Models to load available models';
-      } else if (enabledParseRows.length > 1) {
-        parseHelper.textContent = 'Select provider, then select model from dropdown';
-      } else {
-        parseHelper.textContent = 'Select model from dropdown';
+      let text = '';
+      if (enabledRows.length > 1) {
+        text += 'Choose a provider';
       }
+      if (unpopulated) {
+        text += (text ? ', then ' : '') + 'click Load Models';
+      } else {
+        text += (text ? ' and ' : '') + 'choose a model';
+      }
+      parseHelper.textContent = text;
     }
   }
 
@@ -445,15 +442,26 @@
       testBtn.textContent = 'Test';
       testBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        testBtn.disabled = true;
-        testBtn.classList.add('flashing');
-        if (isOcr) {
-          await runOcrTest(opt.value);
-        } else {
-          await runParserTest(opt.value);
+        const modelSel = row.querySelector('.model-select');
+        const modelName = modelSel ? modelSel.value : '';
+        if (!modelName) {
+          log(`No model selected for ${opt.label}. Please select a model before testing.`, true);
+          return;
         }
-        testBtn.disabled = false;
-        testBtn.classList.remove('flashing');
+
+        const btn = e.target;
+        btn.disabled = true;
+        btn.classList.add('flashing');
+        btn.textContent = 'Testing...';
+        btn.classList.remove('success', 'error');
+
+        if (isOcr) {
+          await runOcrTest(opt.value, modelName, btn);
+        } else {
+          await runParserTest(opt.value, modelName, btn);
+        }
+
+        // The run*Test functions now handle the button state updates
       });
 
       // clicking label checks radio and triggers onChoose
@@ -499,10 +507,36 @@
       }
 
       if (provider.startsWith('claude')) {
-        if (progressEl) progressEl.textContent = 'Loading Claude models...';
-        log('Using hardcoded list for Claude models.');
-        candidates = ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20240620'];
-        if (progressEl) progressEl.textContent = `Found ${candidates.length} models`;
+        if (progressEl) progressEl.textContent = 'Fetching Claude models...';
+        log('[T2C DEBUG] Calling Anthropic /v1/models endpoint.');
+        try {
+          const claudeKey = ($('claude-key')?.value || '').trim();
+          if (!claudeKey) throw new Error('Claude API key not provided.');
+
+          const resp = await fetch('https://api.anthropic.com/v1/models', {
+            headers: {
+              'x-api-key': claudeKey,
+              'anthropic-version': '2023-06-01',
+            },
+          });
+
+          const data = await resp.json();
+          log(`[T2C DEBUG] Anthropic /v1/models response: ${JSON.stringify(data, null, 2)}`);
+
+          if (!resp.ok) {
+            const err = data.error || { message: `HTTP ${resp.status}` };
+            throw new Error(err.message);
+          }
+
+          candidates = data.data.map(model => model.id);
+          log(`Found ${candidates.length} Claude models.`);
+          if (progressEl) progressEl.textContent = `Found ${candidates.length} models`;
+
+        } catch (e) {
+          log(`Failed to fetch Claude models: ${e.message}`, true);
+          if (progressEl) progressEl.textContent = 'Error fetching models';
+          candidates = []; // Ensure no models are shown on failure
+        }
       }
 
       if (provider.startsWith('gemini')) {
@@ -579,6 +613,7 @@
           const opt = Array.from(selectEl.options).find(o => o.value === savedModel);
           if (opt) selectEl.value = savedModel;
         }
+        selectEl.addEventListener('change', updateCurrentSelectionInfo);
         log(`Models loaded for ${provider}.`);
         if (progressEl) progressEl.textContent = 'Select model and test';
       } else {
@@ -676,20 +711,33 @@
   }
 
   // --- Test runners talk to background (centralized API is there) ---
-  async function runOcrTest(provider, modelName) {
+  async function runOcrTest(provider, modelName, btn) {
     if (!testImageDataUrl) {
-      log('No image loaded for the OCR test.', true); return;
-    } else {
-      log('[DEBUG] No modelName provided to backend.');
+      log('No image loaded for the OCR test.', true);
+      return;
     }
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Testing...';
+      btn.classList.remove('success', 'error');
+    }
+
     const resultBox = document.getElementById('ocr-result');
-    if (resultBox) { resultBox.value = ''; resultBox.disabled = true; }
+    if (resultBox) {
+      resultBox.value = '';
+      resultBox.disabled = true;
+    }
+
     try {
       const response = await chrome.runtime.sendMessage({
-        type: 'DIAG_TEST_OCR', provider, model: modelName, dataUrl: testImageDataUrl,
+        type: 'DIAG_TEST_OCR',
+        provider,
+        model: modelName,
+        dataUrl: testImageDataUrl,
       });
-      // extra debug: log what we sent
+
       log(`Requesting background script to test OCR with: ${provider} (model: ${modelName || 'none'})`);
+
       if (response && response.ok) {
         if (response.debug) {
           const { payload, ...restOfDebug } = response.debug;
@@ -697,30 +745,72 @@
         }
         log(`OCR test success for ${provider} (model: ${modelName}). Extracted ${response.text.length} chars.`);
         if (resultBox) resultBox.value = response.text;
+        if (btn) {
+          btn.textContent = 'Success';
+          btn.classList.add('success');
+        }
       } else {
         throw new Error(response?.error || 'Unknown error');
       }
     } catch (e) {
       log(`OCR test FAILED for ${provider} (model: ${modelName}): ${e.message}`, true);
       if (resultBox) resultBox.value = 'ERROR: ' + e.message;
+      if (btn) {
+        btn.textContent = 'Error';
+        btn.classList.add('error');
+      }
     } finally {
-      if (resultBox) { resultBox.disabled = false; }
+      if (resultBox) {
+        resultBox.disabled = false;
+      }
+      if (btn) {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Test';
+          btn.classList.remove('success', 'error');
+        }, 3000);
+      }
     }
   }
 
-  async function runParserTest(provider, modelName) {
+  async function runParserTest(provider, modelName, btn) {
     const textToParse = document.getElementById('parser-input')?.value || '';
     const resultBox = document.getElementById('parser-result');
-    if (resultBox) { resultBox.value = ''; resultBox.disabled = true; }
+
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Testing...';
+      btn.classList.remove('success', 'error');
+    }
+
+    if (resultBox) {
+      resultBox.value = '';
+      resultBox.disabled = true;
+    }
+
     if (!textToParse) {
       log('No text in the input box to parse.', true);
       if (resultBox) resultBox.value = 'ERROR: No text to parse.';
+      if (btn) {
+        btn.textContent = 'Error';
+        btn.classList.add('error');
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Test';
+          btn.classList.remove('success', 'error');
+        }, 3000);
+      }
       return;
     }
+
     try {
       const response = await chrome.runtime.sendMessage({
-        type: 'DIAG_TEST_PARSE', provider, model: modelName, text: textToParse,
+        type: 'DIAG_TEST_PARSE',
+        provider,
+        model: modelName,
+        text: textToParse,
       });
+
       if (response && response.ok) {
         log(`Parser test success for ${provider} (model: ${modelName}):`);
         if (response.debug) {
@@ -729,14 +819,31 @@
         }
         log(JSON.stringify(response.result, null, 2));
         if (resultBox) resultBox.value = JSON.stringify(response.result, null, 2);
+        if (btn) {
+          btn.textContent = 'Success';
+          btn.classList.add('success');
+        }
       } else {
         throw new Error(response?.error || 'Unknown error');
       }
     } catch (e) {
       log(`Parser test FAILED for ${provider} (model: ${modelName}): ${e.message}`, true);
       if (resultBox) resultBox.value = 'ERROR: ' + e.message;
+      if (btn) {
+        btn.textContent = 'Error';
+        btn.classList.add('error');
+      }
     } finally {
-      if (resultBox) { resultBox.disabled = false; }
+      if (resultBox) {
+        resultBox.disabled = false;
+      }
+      if (btn) {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Test';
+          btn.classList.remove('success', 'error');
+        }, 3000);
+      }
     }
   }
 
@@ -823,17 +930,17 @@
     // Claude
     if (keys.claude) {
       try {
-        const resp = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'x-api-key': keys.claude, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: 'claude-3-haiku-20240307', messages: [{ role: 'user', content: 'test' }], max_tokens: 10 }),
+        // A successful call to the /v1/models endpoint is the most reliable way to validate a key.
+        const resp = await fetch('https://api.anthropic.com/v1/models', {
+          headers: { 'x-api-key': keys.claude, 'anthropic-version': '2023-06-01' },
         });
-        if (resp.status !== 401) { // 401 is bad key, other errors might be temporary
+        if (resp.ok) {
           keyValidationStatus.claude = true;
-          log('Claude key appears valid.');
+          log('Claude key is valid.');
           clearKeyError('claude-key');
         } else {
-          throw new Error('Invalid API key');
+          const err = await resp.json();
+          throw new Error(err.error?.message || `HTTP ${resp.status}`);
         }
       } catch (e) {
         showKeyError('claude-key', `Validation failed: ${e.message}`);
@@ -912,12 +1019,6 @@
       const ocrMethod = document.querySelector('input[name="ocrMethod"]:checked')?.value;
       const parseMethod = document.querySelector('input[name="parseMethod"]:checked')?.value;
       // Get selected models from dropdowns
-      const ocrRow = document.querySelector(`.provider-row input[value="${ocrMethod}"]`)?.closest('.provider-row');
-      const ocrModel = ocrRow?.querySelector('.model-select')?.value || '';
-      const parseRow = document.querySelector(`.provider-row input[value="${parseMethod}"]`)?.closest('.provider-row');
-      const parseModel = parseRow?.querySelector('.model-select')?.value || '';
-      log(`[SAVE] OCR: method=${ocrMethod}, model=${ocrModel}`);
-      log(`[SAVE] Parse: method=${parseMethod}, model=${parseModel}`);
       const config = {
         ocrMethod,
         parseMethod,
@@ -927,16 +1028,10 @@
         googleKey: $('google-key')?.value.trim() || '',
       };
       await chrome.storage.sync.set(config);
-      // Also save selected models for OCR and Parse
       await validateApiKeys();
-
-      await chrome.storage.sync.set({ ocrModel, parseModel });
       const statusEl = $('saveStatus');
       if (statusEl) {
-        statusEl.textContent = '✅ Configuration Saved!';
-        setTimeout(() => {
-          statusEl.textContent = '';
-        }, 3000);
+        statusEl.textContent = '✅ Choose AI models below';
       }
       log('Configuration saved successfully.');
     } catch (e) {
@@ -1049,7 +1144,7 @@
       });
     });
     $('check-files-btn')?.addEventListener('click', testLocalOCR);
-    $('save-methods-btn')?.addEventListener('click', saveMethodSelections);
+
     $('download-files-btn')?.addEventListener('click', downloadTesseractBundle);
     $('ocr-image-dropzone')?.addEventListener('paste', handlePastedImage);
     $('clear-log-btn')?.addEventListener('click', () => {
@@ -1066,7 +1161,8 @@
     });
 
     // OCR Test button wiring
-    $('ocr-test-btn')?.addEventListener('click', async () => {
+    $('ocr-test-btn')?.addEventListener('click', async (e) => {
+      const btn = e.target;
       // Find selected OCR provider and model
       const ocrRadio = document.querySelector('input[name="ocrMethod"]:checked');
       if (!ocrRadio) {
@@ -1085,11 +1181,12 @@
       const resultBox = $('ocr-result');
       if (resultBox) resultBox.value = '';
       // Run test
-      await runOcrTest(ocrRadio.value, modelName);
+      await runOcrTest(ocrRadio.value, modelName, btn);
     });
 
     // Parser Test button wiring
-    $('parser-test-btn')?.addEventListener('click', async () => {
+    $('parser-test-btn')?.addEventListener('click', async (e) => {
+      const btn = e.target;
       // Find selected Parser provider and model
       const parserRadio = document.querySelector('input[name="parseMethod"]:checked');
       if (!parserRadio) {
@@ -1104,7 +1201,7 @@
       const resultBox = $('parser-result');
       if (resultBox) resultBox.value = '';
       // Run test
-      await runParserTest(parserRadio.value, modelName);
+      await runParserTest(parserRadio.value, modelName, btn);
     });
 
     // Exit Options button
@@ -1181,6 +1278,8 @@
           if (onChoose) onChoose(opt.value);
         });
 
+        input.addEventListener('change', updateCurrentSelectionInfo);
+
         row.append(label, loadBtn, modelSel, progressEl);
         container.append(row);
       });
@@ -1189,6 +1288,10 @@
     const saveBtn = $('save-config-btn');
     saveBtn.textContent = 'Save & Validate Keys';
     saveBtn.disabled = true;
+    const statusEl = $('saveStatus');
+    if (statusEl) {
+        statusEl.textContent = '';
+    }
 
     createProviderRowsNoTest('ocr-method-options', 'ocrMethod', [
       { value: 'openai-vision', label: 'OpenAI Vision' },

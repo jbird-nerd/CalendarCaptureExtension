@@ -62,7 +62,7 @@ async function callOpenAIVisionOCRDebug(dataUrl, settings = {}) {
   };
 
   console.log(`[T2C DEBUG] Calling OpenAI Vision OCR: ${endpoint} (model: ${chosenModel})`);
-  
+
   const makeRequest = async (payload) => {
     return await fetch(endpoint, {
       method: 'POST',
@@ -107,7 +107,7 @@ async function callClaudeVisionOCRDebug(dataUrl, settings = {}) {
         role: 'user',
         content: [
           { type: 'image', source: { type: 'base64', media_type: 'image/png', data: base64 } },
-          { type: 'text', text: 'Extract text from this image.' },
+          { type: 'text', text: 'Extract all text from this image exactly as it appears. Do not add any commentary or description.' },
         ],
       },
     ],
@@ -196,15 +196,7 @@ export async function performOcr(provider, dataUrl, settings) {
 // --------------------------- Parsing (with debug) ---------------------------
 
 function buildParsePrompt(text) {
-  return `Your task is to analyze ONLY the text provided below and extract event details into a single raw JSON object with keys: "title", "start", "end", "location", "hasTime". The current date is ${new Date().toString()}.
-
-IMPORTANT: All relative and recurring date references MUST point to UPCOMING/FUTURE dates, never past dates:
-- "First Tuesday of the month" means the NEXT occurrence (if today is late October, use November's first Tuesday)
-- "Second Wednesday" means the upcoming second Wednesday, not a past one
-- "Every Monday" or "Every Other Friday" should use the next occurrence
-- Any day-of-week reference (e.g., "Monday", "this Friday") should be the upcoming occurrence
-
-Format dates as local ISO 8601 strings (e.g., "2025-09-23T17:30:00"). If info is missing, use null. --- ${text} ---`;
+  return `Your task is to analyze ONLY the text provided below and extract event details into a single raw JSON object with keys: "title", "start", "end", "location", "hasTime". The current date is ${new Date().toString()}. Format dates as local ISO 8601 strings (e.g., "2025-09-23T17:30:00"). If info is missing, use null. --- ${text} ---`;
 }
 
 async function callOpenAIParseDebug(text, settings = {}) {
@@ -275,8 +267,8 @@ async function callClaudeParseDebug(text, settings = {}) {
   const resp = await fetch(endpoint, {
     method: 'POST',
     headers: {
-      'x-api-key': settings.claudeKey, 
-      'anthropic-version': '2023-06-01', 
+      'x-api-key': settings.claudeKey,
+      'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true',
       'Content-Type': 'application/json',
     },

@@ -8,7 +8,7 @@
 
   "manifest_version": 3,
   "name": "CalendarCapture",
-  "version": "2.0",
+  "version": "2.1",
   "description": "Capture screen text and add to Google Calendar.",
   "icons": {
     "16": "icons/icon16.png",

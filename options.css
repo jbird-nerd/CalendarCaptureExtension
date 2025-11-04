@@ -429,6 +429,28 @@ pre {
   margin: 20px 0;
 }
 
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.test-btn.flashing {
+  animation: flash 1s infinite;
+}
+
+.test-btn.success, .btn.success {
+  background-color: var(--success);
+  color: white;
+  border-color: #1e8e3e;
+}
+
+.test-btn.error, .btn.error {
+  background-color: var(--secondary);
+  color: white;
+  border-color: var(--secondary);
+}
+
+
 /* CSS Variables for legacy compatibility */
 body {
   --muted: var(--text-secondary);
